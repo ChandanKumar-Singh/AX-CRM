@@ -337,7 +337,11 @@ class _EditScheduledCallState extends State<EditScheduledCall> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    RaisedButton(
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:themeColor,
+                        disabledBackgroundColor:  const Color(0xABA4A3A3),
+                       ),
                       onPressed: () async {
                         if (scheduledDate == '') {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -391,7 +395,7 @@ class _EditScheduledCallState extends State<EditScheduledCall> {
                           style: TextStyle(color: Colors.white),
                         ),
                       ),
-                      color: themeColor,
+
                     ),
                   ],
                 ),

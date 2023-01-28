@@ -1,6 +1,7 @@
 import 'package:crm_application/Screens/Cold%20Calls/ContactTabsScreen.dart';
 import 'package:crm_application/Screens/Cold%20Calls/Intraction/InteractionsScreen.dart';
 import 'package:crm_application/Screens/Cold%20Calls/MyLeads/MyLeadScreen.dart';
+import 'package:crm_application/Screens/Cold%20Calls/MyLeads/dumpedCall/DumpedLeadScreen.dart';
 import 'package:crm_application/Screens/DashBoard/LeavesPage.dart';
 import 'package:crm_application/Utils/Colors.dart';
 import 'package:crm_application/Utils/ImageConst.dart';
@@ -43,6 +44,61 @@ Column LeadWidget(String name, BuildContext context) {
                 margin: const EdgeInsets.all(25),
                 child: Image.asset(
                   ImageConst.leads_icon,
+                  color: Colors.white,
+                  height: 40,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(
+        height: 5,
+      ),
+      Text(
+        name,
+        style: const TextStyle(
+          //fontFamily: 'avenir',
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    ],
+  );
+}
+Column DumpLeadWidget(String name, BuildContext context) {
+  return Column(
+    children: [
+      Expanded(
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                // builder: (context) => ContactTabsScreen(pageIndex: 'leads'),
+                builder: (context) => DumpedLeadScreen(),
+              ),
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
+              color: themeColor,
+              boxShadow: [
+                BoxShadow(
+                  offset: const Offset(0, 10),
+                  blurRadius: 30,
+                  color: themeColor.withOpacity(0.23),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Container(
+                margin: const EdgeInsets.all(25),
+                child: Image.asset(
+                  ImageConst.dump_leads_icon,
                   color: Colors.white,
                   height: 40,
                 ),

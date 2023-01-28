@@ -320,7 +320,10 @@ class _ScheduleACallBackState extends State<ScheduleACallBack> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    RaisedButton(
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: themeColor,
+                       ),
                       onPressed: () async {
                         if (scheduledDate == '') {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -367,7 +370,7 @@ class _ScheduleACallBackState extends State<ScheduleACallBack> {
                           style: TextStyle(color: Colors.white),
                         ),
                       ),
-                      color: themeColor,
+
                     ),
                   ],
                 ),

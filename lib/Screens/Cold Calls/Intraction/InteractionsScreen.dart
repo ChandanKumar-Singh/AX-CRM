@@ -194,7 +194,7 @@ class _InteractionsScreenState extends State<InteractionsScreen>
                           GestureDetector(
                             onTap: () {
                               Get.to(InteractionProviderFilter(
-                                  token: ip.token, selectedIndex : 1));
+                                  token: ip.token, selectedIndex: 1));
                             },
                             child: Chip(
                               deleteIcon: const Icon(Icons.clear),
@@ -202,18 +202,18 @@ class _InteractionsScreenState extends State<InteractionsScreen>
                               label: Text(
                                   ip.fromDate != null && ip.toDate != null
                                       ? DateFormat('yyyy-MM-dd')
-                                      .format(ip.fromDate!) +
-                                      '  To  ' +
-                                      DateFormat('yyyy-MM-dd')
-                                          .format(ip.toDate!)
+                                              .format(ip.fromDate!) +
+                                          '  To  ' +
+                                          DateFormat('yyyy-MM-dd')
+                                              .format(ip.toDate!)
                                       : ip.fromDate != null
-                                      ? DateFormat('yyyy-MM-dd')
-                                      .format(ip.fromDate!)
-                                      : ip.toDate != null
-                                      ? '  To  ' +
-                                      DateFormat('yyyy-MM-dd')
-                                          .format(ip.toDate!)
-                                      : ''),
+                                          ? DateFormat('yyyy-MM-dd')
+                                              .format(ip.fromDate!)
+                                          : ip.toDate != null
+                                              ? '  To  ' +
+                                                  DateFormat('yyyy-MM-dd')
+                                                      .format(ip.toDate!)
+                                              : ''),
                               onDeleted: () async {
                                 setState(() {
                                   ip.fromDate = null;
@@ -501,7 +501,7 @@ class _InteractionProviderFilterState extends State<InteractionProviderFilter> {
                                       lastDate: DateTime.now()
                                           .add(const Duration(days: 365)),
                                       initialDate:
-                                      ip.fromDate ?? DateTime.now());
+                                          ip.fromDate ?? DateTime.now());
                                   if (date != null) {
                                     setState(() {
                                       ip.fromDate = date;
@@ -533,8 +533,7 @@ class _InteractionProviderFilterState extends State<InteractionProviderFilter> {
                                       firstDate: DateTime(2000),
                                       lastDate: DateTime.now()
                                           .add(const Duration(days: 365)),
-                                      initialDate:
-                                      ip.toDate ?? DateTime.now());
+                                      initialDate: ip.toDate ?? DateTime.now());
                                   if (date != null) {
                                     setState(() {
                                       ip.toDate = date;
@@ -558,7 +557,8 @@ class _InteractionProviderFilterState extends State<InteractionProviderFilter> {
                                     ),
                                     child: ListTile(
                                       shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(5)),
+                                          borderRadius:
+                                              BorderRadius.circular(5)),
                                       onTap: () {
                                         setState(() {
                                           ip.selectedType = null;
@@ -611,7 +611,8 @@ class _InteractionProviderFilterState extends State<InteractionProviderFilter> {
                                     ),
                                     child: ListTile(
                                       shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(5)),
+                                          borderRadius:
+                                              BorderRadius.circular(5)),
                                       onTap: () {
                                         setState(() {
                                           ip.selectedStatus = null;
@@ -680,7 +681,7 @@ class _InteractionProviderFilterState extends State<InteractionProviderFilter> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    FlatButton(
+                    TextButton(
                       onPressed: () async {
                         ip.isFilterApplied(false);
                         Get.back();
@@ -697,10 +698,12 @@ class _InteractionProviderFilterState extends State<InteractionProviderFilter> {
                         ],
                       ),
                     ),
-                    RaisedButton(
-                      color: themeColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5)),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: themeColor,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5)),),
+
                       onPressed: () async {
                         Get.back();
                         await ip.applyFilter(ip);

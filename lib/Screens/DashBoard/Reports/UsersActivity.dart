@@ -16,8 +16,6 @@ import '../../../Provider/UserProvider.dart';
 import '../../Cold Calls/MyLeads/LeadFilter/Filter/FilterUI.dart';
 import '../../Cold Calls/MyLeads/LeadFilter/Models/agentsModel.dart';
 
-
-
 class UsersActivity extends StatefulWidget {
   const UsersActivity({Key? key}) : super(key: key);
 
@@ -518,7 +516,7 @@ class _UserActivityFilterState extends State<UserActivityFilter> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    FlatButton(
+                   TextButton(
                       onPressed: () async {
                         uap.isFilterApplied(false);
                         Get.back();
@@ -535,10 +533,13 @@ class _UserActivityFilterState extends State<UserActivityFilter> {
                         ],
                       ),
                     ),
-                    RaisedButton(
-                      color: themeColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5)),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: themeColor,
+                        disabledBackgroundColor: const Color(0xABA4A3A3),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5)),
+                      ),
                       onPressed: () async {
                         Get.back();
                         await uap.applyFilter(uap);

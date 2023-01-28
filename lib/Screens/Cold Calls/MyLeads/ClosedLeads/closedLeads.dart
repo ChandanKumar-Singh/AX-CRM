@@ -860,7 +860,7 @@ class _ClosedLeadsFilterState extends State<ClosedLeadsFilter> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    FlatButton(
+                    TextButton(
                       onPressed: () async {
                         lp.isFilterApplied(false);
                         Get.back();
@@ -877,10 +877,12 @@ class _ClosedLeadsFilterState extends State<ClosedLeadsFilter> {
                         ],
                       ),
                     ),
-                    RaisedButton(
-                      color: themeColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5)),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: themeColor,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5)),),
+
                       onPressed: () async {
                         Get.back();
                         await lp.applyFilter(lp);

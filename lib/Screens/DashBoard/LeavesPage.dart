@@ -714,7 +714,7 @@ class _LeavesPageState extends State<LeavesPage> {
                           GestureDetector(
                             onTap: () {
                               Get.to(LeavesFilter(
-                                  token: lp.token, selectedIndex : 1));
+                                  token: lp.token, selectedIndex: 1));
                             },
                             child: Chip(
                               deleteIcon: const Icon(Icons.clear),
@@ -722,18 +722,18 @@ class _LeavesPageState extends State<LeavesPage> {
                               label: Text(
                                   lp.fromDate != null && lp.toDate != null
                                       ? DateFormat('yyyy-MM-dd')
-                                      .format(lp.fromDate!) +
-                                      '  To  ' +
-                                      DateFormat('yyyy-MM-dd')
-                                          .format(lp.toDate!)
+                                              .format(lp.fromDate!) +
+                                          '  To  ' +
+                                          DateFormat('yyyy-MM-dd')
+                                              .format(lp.toDate!)
                                       : lp.fromDate != null
-                                      ? DateFormat('yyyy-MM-dd')
-                                      .format(lp.fromDate!)
-                                      : lp.toDate != null
-                                      ? '  To  ' +
-                                      DateFormat('yyyy-MM-dd')
-                                          .format(lp.toDate!)
-                                      : ''),
+                                          ? DateFormat('yyyy-MM-dd')
+                                              .format(lp.fromDate!)
+                                          : lp.toDate != null
+                                              ? '  To  ' +
+                                                  DateFormat('yyyy-MM-dd')
+                                                      .format(lp.toDate!)
+                                              : ''),
                               onDeleted: () async {
                                 setState(() {
                                   lp.fromDate = null;
@@ -1347,7 +1347,13 @@ class _ApplyLeaveShowDialogState extends State<ApplyLeaveShowDialog> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          RaisedButton(
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: themeColor,
+                              disabledBackgroundColor: const Color(0xABA4A3A3),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                            ),
                             onPressed: () async {
                               if (toDate.difference(fromDate) <
                                       const Duration(hours: 11) ||
@@ -1376,12 +1382,14 @@ class _ApplyLeaveShowDialogState extends State<ApplyLeaveShowDialog> {
                                 color: Colors.white,
                               ),
                             ),
-                            color: themeColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
                           ),
-                          RaisedButton(
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: themeColor,
+                              disabledBackgroundColor: const Color(0xABA4A3A3),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                            ),
                             onPressed: () {
                               Navigator.pop(context);
                             },
@@ -1390,10 +1398,6 @@ class _ApplyLeaveShowDialogState extends State<ApplyLeaveShowDialog> {
                               style: TextStyle(
                                 color: Colors.white,
                               ),
-                            ),
-                            color: themeColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                         ],
@@ -1811,7 +1815,7 @@ class _LeavesFilterState extends State<LeavesFilter> {
                                       lastDate: DateTime.now()
                                           .add(const Duration(days: 365)),
                                       initialDate:
-                                      lp.fromDate ?? DateTime.now());
+                                          lp.fromDate ?? DateTime.now());
                                   if (date != null) {
                                     setState(() {
                                       lp.fromDate = date;
@@ -1843,8 +1847,7 @@ class _LeavesFilterState extends State<LeavesFilter> {
                                       firstDate: DateTime(2000),
                                       lastDate: DateTime.now()
                                           .add(const Duration(days: 365)),
-                                      initialDate:
-                                      lp.toDate ?? DateTime.now());
+                                      initialDate: lp.toDate ?? DateTime.now());
                                   if (date != null) {
                                     setState(() {
                                       lp.toDate = date;
@@ -2037,7 +2040,7 @@ class _LeavesFilterState extends State<LeavesFilter> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    FlatButton(
+                    TextButton(
                       onPressed: () async {
                         lp.isFilterApplied(false);
                         Get.back();
@@ -2054,10 +2057,14 @@ class _LeavesFilterState extends State<LeavesFilter> {
                         ],
                       ),
                     ),
-                    RaisedButton(
-                      color: themeColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5)),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: themeColor,
+                        disabledBackgroundColor:  const Color(0xABA4A3A3),
+
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5)),),
+
                       onPressed: () async {
                         Get.back();
                         await lp.applyFilter(lp);

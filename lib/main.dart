@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:crm_application/FCM/local_notification_service.dart';
 import 'package:crm_application/Provider/ColdCallProvider.dart';
+import 'package:crm_application/Provider/DumpLeadsProvider.dart';
 import 'package:crm_application/Provider/LeavesProvider.dart';
 import 'package:crm_application/Screens/DashBoard/dashboard.dart';
 import 'package:crm_application/Utils/Constant.dart';
@@ -130,6 +131,9 @@ class _CRMAppState extends State<CRMApp> {
           ),
           ChangeNotifierProvider(
             create: (ctx) => LeadsProvider(),
+          ),
+           ChangeNotifierProvider(
+            create: (ctx) => DumpLeadsProvider(),
           ),
           ChangeNotifierProvider(
             create: (ctx) => ClosedLeadsProvider(),

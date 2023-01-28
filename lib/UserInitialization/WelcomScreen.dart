@@ -83,14 +83,19 @@ class _WelcomePageState extends State<WelcomePage> {
                           child: Padding(
                             padding:
                                 EdgeInsets.symmetric(horizontal: Get.width * 0.1),
-                            child: RaisedButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20)),
+                            child:     ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: themeColor,
+                                disabledBackgroundColor:  const Color(0xABA4A3A3),
+
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),),
+
                               onPressed: () {
                                 Provider.of<UserProvider>(context,listen: false).role='agent';
                                 Get.offAll(const DashBoard());
                               },
-                              color: themeColor,
+
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Htext('Get Started'),

@@ -191,12 +191,16 @@ class _ColdCallScreenState extends State<ColdCallScreen> {
                                     //   ),
                                     // ),
                                     const SizedBox(width: 10),
-                                    RaisedButton(
-                                      color: const Color(0xF2318005),
-                                      disabledColor: const Color(0xABA4A3A3),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(50)),
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            const Color(0xF2318005),
+                                        disabledBackgroundColor:
+                                            const Color(0xABA4A3A3),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(50)),
+                                      ),
                                       onPressed:
                                           ccp.selectedColdCalls.isNotEmpty
                                               ? () async {
@@ -223,12 +227,16 @@ class _ColdCallScreenState extends State<ColdCallScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                    RaisedButton(
-                                      color: const Color(0xF2E52121),
-                                      disabledColor: const Color(0xABA4A3A3),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(50)),
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            const Color(0xF2E52121),
+                                        disabledBackgroundColor:
+                                            const Color(0xABA4A3A3),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(50)),
+                                      ),
                                       onPressed: ccp
                                               .selectedColdCalls.isNotEmpty
                                           ? () {
@@ -421,7 +429,9 @@ class _ColdCallScreenState extends State<ColdCallScreen> {
                                                                       await Provider.of<DialProvider>(context, listen: false).makeDialCall(
                                                                           e.phone
                                                                               .toString(),
-                                                                          'Lead',name: e.name);
+                                                                          'Lead',
+                                                                          name:
+                                                                              e.name);
                                                                     } catch (e) {
                                                                       print(
                                                                           'Lead screen error $e');
@@ -1982,7 +1992,7 @@ class _ColdCallFilterState extends State<ColdCallFilter> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    FlatButton(
+                    TextButton(
                       onPressed: () async {
                         ccp.isFilterApplied(false);
                         Get.back();
@@ -1999,10 +2009,13 @@ class _ColdCallFilterState extends State<ColdCallFilter> {
                         ],
                       ),
                     ),
-                    RaisedButton(
-                      color: themeColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5)),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: themeColor,
+                        disabledBackgroundColor: const Color(0xABA4A3A3),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5)),
+                      ),
                       onPressed: () async {
                         Get.back();
                         await ccp.applyFilter(ccp);
@@ -2332,14 +2345,14 @@ class _LeadAssignmentToAgentDialogState
             const SizedBox(height: 10),
             Row(
               children: [
-                RaisedButton(
+                ElevatedButton(
                   onPressed: () {
                     Get.back();
                   },
                   child: const Text('Close'),
                 ),
                 const SizedBox(width: 20),
-                RaisedButton(
+                ElevatedButton(
                   onPressed: () async {
                     if (_agentKey.currentState!.validate() &&
                         _sourceKey.currentState!.validate() &&
@@ -2352,7 +2365,9 @@ class _LeadAssignmentToAgentDialogState
                     'Submit',
                     style: TextStyle(color: Colors.white),
                   ),
-                  color: themeColor,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: themeColor,
+                  ),
                 ),
               ],
               mainAxisAlignment: MainAxisAlignment.end,

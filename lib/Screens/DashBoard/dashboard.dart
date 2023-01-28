@@ -260,6 +260,10 @@ class _DashBoardState extends State<DashBoard> {
                               padding: const EdgeInsets.only(top: 8.0),
                               child: LeadWidget("MY LEADS", context),
                             ),
+                             Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: DumpLeadWidget("DUMPED LEADS", context),
+                            ),
                             Padding(
                               padding: const EdgeInsets.only(top: 8.0),
                               child: InteractionWidget("INTERACTIONS", context),

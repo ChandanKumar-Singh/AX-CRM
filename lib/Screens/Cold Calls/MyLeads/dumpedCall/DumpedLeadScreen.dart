@@ -3,10 +3,19 @@ import 'dart:io';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:crm_application/Models/LeadsModel.dart';
+import 'package:crm_application/Provider/DialProvider.dart';
+import 'package:crm_application/Provider/DumpLeadsProvider.dart';
 import 'package:crm_application/Provider/UserProvider.dart';
+import 'package:crm_application/Screens/Cold%20Calls/MyLeads/LeadFilter/Filter/FilterUI.dart';
 import 'package:crm_application/Screens/Cold%20Calls/MyLeads/LeadFilter/Models/agentsModel.dart';
 import 'package:crm_application/Screens/Cold%20Calls/MyLeads/ClosedLeads/closedLeads.dart';
 import 'package:crm_application/Screens/Cold%20Calls/MyLeads/LeadFilter/Models/developerModel.dart';
+import 'package:crm_application/Screens/Cold%20Calls/MyLeads/LeadFilter/Models/propertyModel.dart';
+import 'package:crm_application/Screens/Cold%20Calls/MyLeads/LeadFilter/Models/statusModel.dart';
+import 'package:crm_application/Screens/Cold%20Calls/MyLeads/LeadFilter/Models/stausmodel.dart';
+import 'package:crm_application/Utils/Colors.dart';
+import 'package:crm_application/Utils/Constant.dart';
+import 'package:crm_application/Utils/ImageConst.dart';
 import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -21,30 +30,20 @@ import 'package:provider/provider.dart';
 import 'package:rotated_corner_decoration/rotated_corner_decoration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../Provider/DialProvider.dart';
-import '../../../Provider/LeadsProvider.dart';
-import '../../../Utils/Colors.dart';
-import '../../../Utils/Constant.dart';
-import '../../../Utils/ImageConst.dart';
-import 'LeadFilter/Filter/FilterUI.dart';
-import 'LeadFilter/Models/propertyModel.dart';
-import 'LeadFilter/Models/statusModel.dart';
-import 'LeadFilter/Models/stausmodel.dart';
-import 'SSS/SSSScreen.dart';
 
-class MyLeadScreen extends StatefulWidget {
-  const MyLeadScreen({Key? key}) : super(key: key);
+class DumpedLeadScreen extends StatefulWidget {
+  const DumpedLeadScreen({Key? key}) : super(key: key);
 
   @override
-  State<MyLeadScreen> createState() => _MyLeadScreenState();
+  State<DumpedLeadScreen> createState() => _MyLeadScreenState();
 }
 
-class _MyLeadScreenState extends State<MyLeadScreen> {
+class _MyLeadScreenState extends State<DumpedLeadScreen> {
   late SharedPreferences pref;
   var authToken, responseData, url;
   int? sssPermission;
   int? clPermission;
-  String TAG = 'MyLeadScreen';
+  String TAG = 'DumpedCallScreen';
 
   bool isAddingContact = false;
 
@@ -54,11 +53,11 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
     sssPermission = pref.getInt('sssPermission');
     clPermission = pref.getInt('clPermission');
     try {
-      Provider.of<LeadsProvider>(context, listen: false).token = authToken;
-      Provider.of<LeadsProvider>(context, listen: false).role =
+      Provider.of<DumpLeadsProvider>(context, listen: false).token = authToken;
+      Provider.of<DumpLeadsProvider>(context, listen: false).role =
           jsonDecode(pref.getString('user')!)['role'];
-      await Provider.of<LeadsProvider>(context, listen: false).getLeads();
-      await Provider.of<LeadsProvider>(context, listen: false)
+      await Provider.of<DumpLeadsProvider>(context, listen: false).getDumpedLeads();
+      await Provider.of<DumpLeadsProvider>(context, listen: false)
           .initFilterMethods();
     } catch (e) {
       print(e);
@@ -70,10 +69,10 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
     // TODO: implement initState
     super.initState();
     getPrefs();
-    Provider.of<LeadsProvider>(context, listen: false).controller =
+    Provider.of<DumpLeadsProvider>(context, listen: false).controller =
         ScrollController()
           ..addListener(
-              Provider.of<LeadsProvider>(context, listen: false).loadMore);
+              Provider.of<DumpLeadsProvider>(context, listen: false).loadMore);
   }
 
   @override
@@ -83,24 +82,24 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
 
   @override
   void dispose() {
-    Provider.of<LeadsProvider>(context, listen: false)
+    Provider.of<DumpLeadsProvider>(context, listen: false)
         .controller
         .removeListener(
-            Provider.of<LeadsProvider>(context, listen: false).loadMore);
+            Provider.of<DumpLeadsProvider>(context, listen: false).loadMore);
     super.dispose();
   }
 
   Future<bool> onWillPop(BuildContext context) async {
-    var lp = Provider.of<LeadsProvider>(context, listen: false);
+    var dp = Provider.of<DumpLeadsProvider>(context, listen: false);
     print(
-        'On will Pop Scope selection mode-- > ' + lp.selectionMode.toString());
-    if (lp.selectionMode) {
-      lp.selectionMode = false;
-      lp.selectedLeads.clear();
+        'On will Pop Scope selection mode-- > ' + dp.selectionMode.toString());
+    if (dp.selectionMode) {
+      dp.selectionMode = false;
+      dp.selectedLeads.clear();
       setState(() {});
       return false;
     } else {
-      return await lp.isFilterApplied(false);
+      return await dp.isFilterApplied(false);
     }
   }
 
@@ -112,22 +111,22 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
 
         return willBack;
       },
-      child: Consumer<LeadsProvider>(builder: (context, lp, _) {
-        print('On selection mode-- > ' + lp.leadsData.length.toString());
-        print('On selection mode-- > ' + lp.IsLoading.toString());
+      child: Consumer<DumpLeadsProvider>(builder: (context, dp, _) {
+        print('On selection mode-- > ' + dp.leadsData.length.toString());
+        print('On selection mode-- > ' + dp.IsLoading.toString());
         print('On sss permission -- > ' + sssPermission.toString());
         print('On cl permission -- > ' + clPermission.toString());
-        // lp.selectedLeads.forEach((element) {print(element.leadId);});
+        //  dp.selectedLeads.forEach((element) {print(element.leadId);});
 
         return Scaffold(
-          appBar: !lp.selectionMode
-              ? filterModeAppBar(lp)
+          appBar: !dp.selectionMode
+              ? filterModeAppBar(dp)
               : AppBar(
                   backgroundColor: themeColor,
                   leading: IconButton(
                     onPressed: () {
-                      lp.selectionMode = false;
-                      lp.selectedLeads.clear();
+                      dp.selectionMode = false;
+                      dp.selectedLeads.clear();
                       setState(() {});
                     },
                     icon: const Icon(Icons.clear),
@@ -136,17 +135,17 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                   //   checkColor: themeColor,
                   //   activeColor: Colors.white,
                   //   side: const BorderSide(color: Colors.white),
-                  //   value: lp.selectedLeads.length == lp.leadsData.length,
+                  //   value:  dp.selectedLeads.length ==  dp.leadsData.length,
                   //   onChanged: (v) {
                   //     setState(() {
                   //       !v!
-                  //           ? lp.selectedLeads.clear()
-                  //           : lp.selectedLeads.addAll(lp.leadsData);
+                  //           ?  dp.selectedLeads.clear()
+                  //           :  dp.selectedLeads.addAll(dp.leadsData);
                   //     });
-                  //     // print(lp.selectedLeads.length);
+                  //     // print(dp.selectedLeads.length);
                   //   },
                   title: Text(
-                    '${lp.selectedLeads.length} Selected',
+                    '${dp.selectedLeads.length} Selected',
                     style: const TextStyle(color: Colors.white),
                   ),
                   // ),
@@ -164,11 +163,13 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xF2C08004),
-                                      disabledBackgroundColor:  const Color(0xABA4A3A3),
+                                      disabledBackgroundColor:
+                                          const Color(0xABA4A3A3),
                                       shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(50)),),
-
-                                    onPressed: lp.selectedLeads.isNotEmpty
+                                          borderRadius:
+                                              BorderRadius.circular(50)),
+                                    ),
+                                    onPressed: dp.selectedLeads.isNotEmpty
                                         ? () async {
                                             await showDialog(
                                                 context: context,
@@ -182,8 +183,8 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                                                                     .circular(
                                                                         15)),
                                                     child:
-                                                        LeadAssignmentToLeaderDialog(
-                                                            lp: lp),
+                                                        DumpLeadAssignmentToLeaderDialog(
+                                                            dp: dp),
                                                   );
                                                 });
                                           }
@@ -197,11 +198,13 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xF2318005),
-                                      disabledBackgroundColor:  const Color(0xABA4A3A3),
+                                      disabledBackgroundColor:
+                                          const Color(0xABA4A3A3),
                                       shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(50)),),
-
-                                    onPressed: lp.selectedLeads.isNotEmpty
+                                          borderRadius:
+                                              BorderRadius.circular(50)),
+                                    ),
+                                    onPressed: dp.selectedLeads.isNotEmpty
                                         ? () async {
                                             await showDialog(
                                                 context: context,
@@ -215,8 +218,8 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                                                                     .circular(
                                                                         15)),
                                                     child:
-                                                        LeadAssignmentToAgentDialog(
-                                                            lp: lp),
+                                                        DumpLeadAssignmentToAgentDialog(
+                                                            dp: dp),
                                                   );
                                                 });
                                           }
@@ -230,11 +233,13 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xF2E52121),
-                                      disabledBackgroundColor:  const Color(0xABA4A3A3),
+                                      disabledBackgroundColor:
+                                          const Color(0xABA4A3A3),
                                       shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(50)),),
-
-                                    onPressed: lp.selectedLeads.isNotEmpty
+                                          borderRadius:
+                                              BorderRadius.circular(50)),
+                                    ),
+                                    onPressed: dp.selectedLeads.isNotEmpty
                                         ? () {
                                             AwesomeDialog(
                                               dismissOnBackKeyPress: false,
@@ -248,7 +253,7 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                                                   'After delete permanently,\nit will not be retrieve.',
                                               btnCancelOnPress: () {},
                                               btnOkOnPress: () async {
-                                                await lp.bulkDelete();
+                                                await dp.bulkDelete();
                                               },
                                             ).show();
                                           }
@@ -267,19 +272,19 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                         height: 45),
                   ),
                 ),
-          body: !lp.IsLoading
-              // ?  MyHomePage(lp: lp,)
+          body: !dp.IsLoading
+              // ?  MyHomePage(dp:  dp,)
               ? Stack(
                   children: [
                     Column(
                       children: [
                         Expanded(
-                          child: LeadsCard(
-                            lp: lp,
+                          child: DumpLeadsCard(
+                            dp: dp,
                           ),
                         ),
                         // when the _loadMore function is running
-                        if (lp.isLoadMoreRunning == true)
+                        if (dp.isLoadMoreRunning == true)
                           const Padding(
                             padding: EdgeInsets.only(top: 10, bottom: 25),
                             child: Center(
@@ -306,13 +311,13 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
     );
   }
 
-  AppBar filterModeAppBar(LeadsProvider lp) {
+  AppBar filterModeAppBar(DumpLeadsProvider dp) {
     return AppBar(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Expanded(child: Text(' Active Leads')),
-          Text('( ${lp.total} )')
+          Text('( ${dp.total} )')
         ],
       ),
       backgroundColor: themeColor,
@@ -321,10 +326,10 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
           children: [
             IconButton(
                 onPressed: () {
-                  Get.to(LeadsFilters(token: authToken));
+                  Get.to(DumpLeadsFilters(token: authToken));
                 },
                 icon: const Icon(Icons.filter_list_outlined)),
-            if (lp.isFlrApplied)
+            if (dp.isFlrApplied)
               const Positioned(
                 child: Icon(
                   Icons.circle,
@@ -343,7 +348,7 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
               Get.to(const ClosedLeadsScreen());
             }
             if (val == 1) {
-              Get.to(const SSSScreen());
+              // Get.to(const SSSScreen());
             }
           },
           icon: const Icon(Icons.more_vert),
@@ -361,7 +366,7 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                       Text('CLosed Leads')
                     ],
                   )),
-              if (lp.role == UserType.admin.name || sssPermission == 1)
+              if (dp.role == UserType.admin.name || sssPermission == 1)
                 PopupMenuItem(
                     value: 1,
                     child: Row(
@@ -382,7 +387,7 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
           padding: const EdgeInsets.all(10),
         ),
       ],
-      bottom: lp.isFlrApplied
+      bottom: dp.isFlrApplied
           ? PreferredSize(
               preferredSize: const Size.fromHeight(70),
               child: Container(
@@ -393,39 +398,39 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    if (lp.selectedAgent != null)
+                    if (dp.selectedAgent != null)
                       GestureDetector(
                         onTap: () {
-                          Get.to(
-                              LeadsFilters(token: lp.token, selectedIndex: 0));
+                          Get.to(DumpLeadsFilters(
+                              token: dp.token, selectedIndex: 0));
                         },
                         child: Row(
                           children: [
                             GestureDetector(
                               onTap: () {
-                                Get.to(LeadsFilters(
-                                    token: lp.token, selectedIndex: 0));
+                                Get.to(DumpLeadsFilters(
+                                    token: dp.token, selectedIndex: 0));
                               },
                               child: Chip(
                                 deleteIcon: const Icon(Icons.clear),
-                                label: lp.role != UserType.admin.name
-                                    ? Text(lp.agentsByTeamList
+                                label: dp.role != UserType.admin.name
+                                    ? Text(dp.agentsByTeamList
                                         .firstWhere((element) => element.agents!
                                             .any((ele) =>
-                                                ele.id == lp.selectedAgent))
+                                                ele.id == dp.selectedAgent))
                                         .agents!
                                         .firstWhere((element) =>
-                                            element.id == lp.selectedAgent)
+                                            element.id == dp.selectedAgent)
                                         .name!)
-                                    : Text(lp.agentsByIdList
+                                    : Text(dp.agentsByIdList
                                         .firstWhere((element) =>
-                                            element.id == lp.selectedAgent)
+                                            element.id == dp.selectedAgent)
                                         .name!),
                                 onDeleted: () async {
                                   setState(() {
-                                    lp.selectedAgent = null;
+                                    dp.selectedAgent = null;
                                   });
-                                  await lp.applyFilter(lp);
+                                  await dp.applyFilter(dp);
                                 },
                               ),
                             ),
@@ -433,118 +438,118 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                           ],
                         ),
                       ),
-                    if (lp.fromDate != null || lp.toDate != null)
+                    if (dp.fromDate != null || dp.toDate != null)
                       Row(
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Get.to(LeadsFilters(
-                                  token: lp.token, selectedIndex: 1));
+                              Get.to(DumpLeadsFilters(
+                                  token: dp.token, selectedIndex: 1));
                             },
                             child: Chip(
                               deleteIcon: const Icon(Icons.clear),
                               // deleteIconColor: Colors.red,
                               label: Text(
-                                  lp.fromDate != null && lp.toDate != null
+                                  dp.fromDate != null && dp.toDate != null
                                       ? DateFormat('yyyy-MM-dd')
-                                              .format(lp.fromDate!) +
+                                              .format(dp.fromDate!) +
                                           '  To  ' +
                                           DateFormat('yyyy-MM-dd')
-                                              .format(lp.toDate!)
-                                      : lp.fromDate != null
+                                              .format(dp.toDate!)
+                                      : dp.fromDate != null
                                           ? DateFormat('yyyy-MM-dd')
-                                              .format(lp.fromDate!)
-                                          : lp.toDate != null
+                                              .format(dp.fromDate!)
+                                          : dp.toDate != null
                                               ? '  To  ' +
                                                   DateFormat('yyyy-MM-dd')
-                                                      .format(lp.toDate!)
+                                                      .format(dp.toDate!)
                                               : ''),
                               onDeleted: () async {
                                 setState(() {
-                                  lp.fromDate = null;
-                                  lp.toDate = null;
+                                  dp.fromDate = null;
+                                  dp.toDate = null;
                                 });
-                                await lp.applyFilter(lp);
+                                await dp.applyFilter(dp);
                               },
                             ),
                           ),
                           const SizedBox(width: 10),
                         ],
                       ),
-                    if (lp.selectedDeveloper != null)
+                    if (dp.selectedDeveloper != null)
                       Row(
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Get.to(LeadsFilters(
-                                  token: lp.token, selectedIndex: 2));
+                              Get.to(DumpLeadsFilters(
+                                  token: dp.token, selectedIndex: 2));
                             },
                             child: Chip(
                               deleteIcon: const Icon(Icons.clear),
-                              label: Text(lp.developersList
+                              label: Text(dp.developersList
                                   .firstWhere((element) =>
-                                      element.id == lp.selectedDeveloper)
+                                      element.id == dp.selectedDeveloper)
                                   .name!),
                               onDeleted: () async {
                                 setState(() {
-                                  lp.selectedDeveloper = null;
+                                  dp.selectedDeveloper = null;
                                 });
-                                await lp.applyFilter(lp);
+                                await dp.applyFilter(dp);
                               },
                             ),
                           ),
                           const SizedBox(width: 10),
                         ],
                       ),
-                    if (lp.selectedProperty != null)
+                    if (dp.selectedProperty != null)
                       Row(
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Get.to(LeadsFilters(
-                                  token: lp.token, selectedIndex: 3));
+                              Get.to(DumpLeadsFilters(
+                                  token: dp.token, selectedIndex: 3));
                             },
                             child: Chip(
                               deleteIcon: const Icon(Icons.clear),
-                              label: Text(lp.propertyList
+                              label: Text(dp.propertyList
                                   .firstWhere((element) =>
-                                      element.id == lp.selectedProperty)
+                                      element.id == dp.selectedProperty)
                                   .name!),
                               onDeleted: () async {
                                 setState(() {
-                                  lp.selectedProperty = null;
+                                  dp.selectedProperty = null;
                                 });
-                                await lp.applyFilter(lp);
+                                await dp.applyFilter(dp);
                               },
                             ),
                           ),
                           const SizedBox(width: 10),
                         ],
                       ),
-                    if (lp.multiSelectedStatus.isNotEmpty)
+                    if (dp.multiSelectedStatus.isNotEmpty)
                       Row(
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Get.to(LeadsFilters(
-                                  token: lp.token, selectedIndex: 4));
+                              Get.to(DumpLeadsFilters(
+                                  token: dp.token, selectedIndex: 4));
                             },
                             child: PopupMenuButton(
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
                               itemBuilder: (context) {
                                 return [
-                                  ...lp.multiSelectedStatus.map(
+                                  ...dp.multiSelectedStatus.map(
                                     (e) => PopupMenuItem(
                                         child: Chip(
                                       deleteIcon: const Icon(Icons.clear),
                                       label: Text(e.name!),
                                       onDeleted: () async {
                                         setState(() {
-                                          lp.multiSelectedStatus.remove(e);
+                                          dp.multiSelectedStatus.remove(e);
                                         });
                                         Get.back();
-                                        await lp.applyFilter(lp);
+                                        await dp.applyFilter(dp);
                                       },
                                     )),
                                   ),
@@ -555,7 +560,7 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                                 label: Row(
                                   children: [
                                     Text(
-                                        '${lp.multiSelectedStatus.length} Status'),
+                                        '${dp.multiSelectedStatus.length} Status'),
                                     const Icon(Icons.arrow_drop_down),
                                   ],
                                 ),
@@ -565,30 +570,30 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                           const SizedBox(width: 10),
                         ],
                       ),
-                    if (lp.multiSelectedSources.isNotEmpty)
+                    if (dp.multiSelectedSources.isNotEmpty)
                       Row(
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Get.to(LeadsFilters(
-                                  token: lp.token, selectedIndex: 5));
+                              Get.to(DumpLeadsFilters(
+                                  token: dp.token, selectedIndex: 5));
                             },
                             child: PopupMenuButton(
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
                               itemBuilder: (context) {
                                 return [
-                                  ...lp.multiSelectedSources.map(
+                                  ...dp.multiSelectedSources.map(
                                     (e) => PopupMenuItem(
                                         child: Chip(
                                       deleteIcon: const Icon(Icons.clear),
                                       label: Text(e.name!),
                                       onDeleted: () async {
                                         setState(() {
-                                          lp.multiSelectedSources.remove(e);
+                                          dp.multiSelectedSources.remove(e);
                                         });
                                         Get.back();
-                                        await lp.applyFilter(lp);
+                                        await dp.applyFilter(dp);
                                       },
                                     )),
                                   ),
@@ -599,7 +604,7 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                                 label: Row(
                                   children: [
                                     Text(
-                                        '${lp.multiSelectedSources.length} Sources'),
+                                        '${dp.multiSelectedSources.length} Sources'),
                                     const Icon(Icons.arrow_drop_down),
                                   ],
                                 ),
@@ -609,44 +614,44 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                           const SizedBox(width: 10),
                         ],
                       ),
-                    if (lp.selectedPriority != null)
+                    if (dp.selectedPriority != null)
                       Row(
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Get.to(LeadsFilters(
-                                  token: lp.token, selectedIndex: 6));
+                              Get.to(DumpLeadsFilters(
+                                  token: dp.token, selectedIndex: 6));
                             },
                             child: Chip(
                               deleteIcon: const Icon(Icons.clear),
-                              label: Text(lp.selectedPriority!),
+                              label: Text(dp.selectedPriority!),
                               onDeleted: () async {
                                 setState(() {
-                                  lp.selectedPriority = null;
+                                  dp.selectedPriority = null;
                                 });
-                                await lp.applyFilter(lp);
+                                await dp.applyFilter(dp);
                               },
                             ),
                           ),
                           const SizedBox(width: 10),
                         ],
                       ),
-                    if (lp.query.text.isNotEmpty)
+                    if (dp.query.text.isNotEmpty)
                       Row(
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Get.to(LeadsFilters(
-                                  token: lp.token, selectedIndex: 7));
+                              Get.to(DumpLeadsFilters(
+                                  token: dp.token, selectedIndex: 7));
                             },
                             child: Chip(
                               deleteIcon: const Icon(Icons.clear),
-                              label: Text(lp.query.text),
+                              label: Text(dp.query.text),
                               onDeleted: () async {
                                 setState(() {
-                                  lp.query.clear();
+                                  dp.query.clear();
                                 });
-                                await lp.applyFilter(lp);
+                                await dp.applyFilter(dp);
                               },
                             ),
                           ),
@@ -662,15 +667,15 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
   }
 }
 
-class LeadsCard extends StatefulWidget {
-  const LeadsCard({Key? key, required this.lp}) : super(key: key);
-  final LeadsProvider lp;
+class DumpLeadsCard extends StatefulWidget {
+  const DumpLeadsCard({Key? key, required this.dp}) : super(key: key);
+  final DumpLeadsProvider dp;
 
   @override
-  State<LeadsCard> createState() => _LeadsCardState();
+  State<DumpLeadsCard> createState() => _DumpLeadsCardState();
 }
 
-class _LeadsCardState extends State<LeadsCard> {
+class _DumpLeadsCardState extends State<DumpLeadsCard> {
   bool isVisible = false;
   var whatsapp;
   _callNumber(String number) async {
@@ -728,10 +733,10 @@ class _LeadsCardState extends State<LeadsCard> {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      controller: widget.lp.controller,
+      controller: widget.dp.controller,
       physics: const BouncingScrollPhysics(),
       children: [
-        ...widget.lp.leadsByDate.map((e) {
+        ...widget.dp.leadsByDate.map((e) {
           return Column(
             children: [
               const SizedBox(height: 10),
@@ -773,7 +778,7 @@ class _LeadsCardState extends State<LeadsCard> {
                             agentsName.substring(0, agentsName.length - 1);
                       }
                     }
-                    var isSelected = widget.lp.selectedLeads
+                    var isSelected = widget.dp.selectedLeads
                         .any((element) => element.leadId == lead.leadId);
 
                     var priorityImage = "assets/images/profile.png";
@@ -803,19 +808,19 @@ class _LeadsCardState extends State<LeadsCard> {
                       padding: const EdgeInsets.all(8.0),
                       child: GestureDetector(
                         // onLongPress: () {
-                        //   if (widget.lp.role == UserType.admin.name) {
-                        //     if (!widget.lp.selectionMode) {
+                        //   if (widget.dp.role == UserType.admin.name) {
+                        //     if (!widget.dp.selectionMode) {
                         //       setState(() {
-                        //         widget.lp.setSelectionMode(true);
-                        //         // widget.lp.setSelectedLeads(lead);
+                        //         widget.dp.setSelectionMode(true);
+                        //         // widget.dp.setSelectedLeads(lead);
                         //       });
                         //     }
                         //   } else {
-                        //     print('Your role is ${widget.lp.role}');
+                        //     print('Your role is ${widget.dp.role}');
                         //   }
                         // },
                         onTap: () {
-                          if (!widget.lp.selectionMode) {
+                          if (!widget.dp.selectionMode) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -825,9 +830,9 @@ class _LeadsCardState extends State<LeadsCard> {
                               ),
                             );
                           } else {
-                            widget.lp.setSelectedLeads(lead);
-                            if (widget.lp.selectedLeads.isEmpty) {
-                              widget.lp.selectionMode = false;
+                            widget.dp.setSelectedLeads(lead);
+                            if (widget.dp.selectedLeads.isEmpty) {
+                              widget.dp.selectionMode = false;
                               setState(() {});
                             }
                           }
@@ -978,42 +983,35 @@ class _LeadsCardState extends State<LeadsCard> {
                                         ),
                                       ),
                                     ),
-                                    // const Spacer(),
-                                    if (agentId == myId)
-                                      InkWell(
-                                        onTap: () async {
-                                          print('call');
-                                          try {
-                                            // _callNumber(
-                                            //     'tel:${lead.phone.toString()}');
-                                            try {
-                                              await Provider.of<DialProvider>(
-                                                      context,
-                                                      listen: false)
-                                                  .makeDialCall(
-                                                      lead.phone.toString(),
-                                                      'Lead',name: lead.name);
-                                            } catch (e) {
-                                              print('Lead screen error $e');
-                                            }
-                                          } catch (e) {
-                                            print(e);
-                                          }
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                            right: 18.0,
-                                          ),
-                                          child: Image.asset(
-                                            ImageConst.call_icon,
-                                            height: 25,
-                                            color: Colors.green,
-                                          ),
-                                        ),
+                                    InkWell(
+                                      onTap: () {
+
+                                        // _modalBottomSheetMenu1(
+                                            // context,
+                                            // e.id!
+                                            //     .toInt(),
+                                            // // 3,
+                                            // ccp.reasonStatusList);
+                                      },
+                                      child: Image
+                                          .asset(
+                                        ImageConst
+                                            .convert_to_lead,
+                                        height: 25,
+                                        color: isSelected
+                                            ? Colors
+                                            .white
+                                            : Colors
+                                            .green,
+                                        //width: 30,
                                       ),
+                                    ),
+                                    const SizedBox(
+                                      width: 30
+                                    ),
                                   ],
                                 ),
-                                // const SizedBox(height: 15),
+
                                 Padding(
                                   padding: const EdgeInsets.only(
                                       left: 20.0, right: 20.0),
@@ -1046,135 +1044,7 @@ class _LeadsCardState extends State<LeadsCard> {
                                   ),
                                 ),
                                 const SizedBox(
-                                  height: 10,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 30.0, right: 30.0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      InkWell(
-                                        onTap: () {
-                                          if (agentId == myId) {
-                                            openWhatsapp(
-                                              lead.phone.toString(),
-                                            );
-                                          } else {
-                                            Fluttertoast.showToast(
-                                                msg:
-                                                    'You don\'t have permission. ');
-                                          }
-                                        },
-                                        child: Image.asset(
-                                          'assets/images/whatsapp.png',
-                                          height: 25,
-                                          width: 25,
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {
-                                          if (agentId == myId) {
-                                            _textMe(
-                                              lead.phone.toString(),
-                                            );
-                                          } else {
-                                            Fluttertoast.showToast(
-                                                msg:
-                                                    'You don\'t have permission. ');
-                                          }
-                                        },
-                                        child: Image.asset(
-                                          'assets/images/messageIcon.png',
-                                          height: 25,
-                                          width: 25,
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () async {
-                                          if (agentId == myId) {
-                                            await Clipboard.setData(
-                                                ClipboardData(
-                                                    text: lead.phone));
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(const SnackBar(
-                                                    duration:
-                                                        Duration(seconds: 1),
-                                                    behavior: SnackBarBehavior
-                                                        .floating,
-                                                    content: Text(
-                                                        'Phone number copied successfully!')));
-                                          } else {
-                                            Fluttertoast.showToast(
-                                                msg:
-                                                    'You don\'t have permission. ');
-                                          }
-                                        },
-                                        child: const Icon(
-                                          Icons.copy,
-                                          size: 25,
-                                          color: Colors.green,
-                                        ),
-                                      ),
-                                      ///TODO: remove button on card
-                                      /*
-                                      GestureDetector(
-
-                                        onTap: () async {
-                                          AwesomeDialog(
-                                              context: context,
-                                              dialogType: DialogType.question,
-                                              title:
-                                                  'Are you sure to remove from list?',
-                                              dismissOnBackKeyPress: true,
-                                              dismissOnTouchOutside: false,
-                                              btnOkText: 'Yes sure!',
-                                              btnCancelText: 'No',
-                                              btnCancelOnPress: () {},
-                                              btnOkOnPress: () async {
-                                                await widget.lp
-                                                    .removeLeadFromList(lead
-                                                        .leadId!
-                                                        .toString());
-                                              }).show();
-                                          // if (agentId == myId) {
-                                          //   await Clipboard.setData(
-                                          //       ClipboardData(
-                                          //           text: lead.phone));
-                                          //   ScaffoldMessenger.of(context)
-                                          //       .showSnackBar(const SnackBar(
-                                          //           duration:
-                                          //               Duration(seconds: 1),
-                                          //           behavior: SnackBarBehavior
-                                          //               .floating,
-                                          //           content: Text(
-                                          //               'Phone number copied successfully!')));
-                                          // } else {
-                                          //   Fluttertoast.showToast(
-                                          //       msg:
-                                          //           'You don\'t have permission. ');
-                                          // }
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              // shape: BoxShape.circle,
-                                              // border: Border.all(color: Colors.red,width: 2,),
-
-                                              ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(2),
-                                            child: const Icon(
-                                              Icons.remove_circle_rounded,
-                                              size: 25,
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      */
-                                    ],
-                                  ),
+                                  height: 10
                                 ),
                                 const SizedBox(
                                   height: 10,
@@ -1196,20 +1066,20 @@ class _LeadsCardState extends State<LeadsCard> {
   }
 }
 
-class LeadAssignmentToLeaderDialog extends StatefulWidget {
-  const LeadAssignmentToLeaderDialog({
+class DumpLeadAssignmentToLeaderDialog extends StatefulWidget {
+  const DumpLeadAssignmentToLeaderDialog({
     Key? key,
-    required this.lp,
+    required this.dp,
   }) : super(key: key);
-  final LeadsProvider lp;
+  final DumpLeadsProvider dp;
 
   @override
-  State<LeadAssignmentToLeaderDialog> createState() =>
-      _LeadAssignmentToLeaderDialogState();
+  State<DumpLeadAssignmentToLeaderDialog> createState() =>
+      _DumpLeadAssignmentToLeaderDialogState();
 }
 
-class _LeadAssignmentToLeaderDialogState
-    extends State<LeadAssignmentToLeaderDialog> {
+class _DumpLeadAssignmentToLeaderDialogState
+    extends State<DumpLeadAssignmentToLeaderDialog> {
   var leaderId;
   var sourceId;
   var statusId;
@@ -1246,9 +1116,9 @@ class _LeadAssignmentToLeaderDialogState
                     ],
                   ),
                   const SizedBox(height: 30),
-                  TestPage(
+                  DumpTestPage(
                     title: 'Team Leader',
-                    list: widget.lp.teamLeadersList,
+                    list: widget.dp.teamLeadersList,
                     formKey: _leaderKey,
                     onTap: (id) {
                       setState(() {
@@ -1257,10 +1127,10 @@ class _LeadAssignmentToLeaderDialogState
                     },
                   ),
                   const SizedBox(height: 20),
-                  TestPage(
+                  DumpTestPage(
                     formKey: _sourceKey,
                     title: 'Source',
-                    list: widget.lp.sourcesList,
+                    list: widget.dp.sourcesList,
                     onTap: (id) {
                       setState(() {
                         sourceId = id;
@@ -1268,10 +1138,10 @@ class _LeadAssignmentToLeaderDialogState
                     },
                   ),
                   const SizedBox(height: 20),
-                  TestPage(
+                  DumpTestPage(
                     formKey: _statusKey,
                     title: 'Status',
-                    list: widget.lp.statusList,
+                    list: widget.dp.statusList,
                     onTap: (id) {
                       setState(() {
                         statusId = id;
@@ -1340,21 +1210,20 @@ class _LeadAssignmentToLeaderDialogState
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: themeColor,
-                   ),
+                  ),
                   onPressed: () async {
-                    // lp.dispose();
+                    //  dp.dispose();
                     if (_leaderKey.currentState!.validate() &&
                         _sourceKey.currentState!.validate() &&
                         _statusKey.currentState!.validate() &&
                         _dateKey.currentState!.validate()) {
-                      await widget.lp.assignToTeamLeader();
+                      await widget.dp.assignToTeamLeader();
                     }
                   },
                   child: const Text(
                     'Submit',
                     style: TextStyle(color: Colors.white),
                   ),
-
                 ),
               ],
               mainAxisAlignment: MainAxisAlignment.end,
@@ -1366,20 +1235,20 @@ class _LeadAssignmentToLeaderDialogState
   }
 }
 
-class LeadAssignmentToAgentDialog extends StatefulWidget {
-  const LeadAssignmentToAgentDialog({
+class DumpLeadAssignmentToAgentDialog extends StatefulWidget {
+  const DumpLeadAssignmentToAgentDialog({
     Key? key,
-    required this.lp,
+    required this.dp,
   }) : super(key: key);
-  final LeadsProvider lp;
+  final DumpLeadsProvider dp;
 
   @override
-  State<LeadAssignmentToAgentDialog> createState() =>
-      _LeadAssignmentToAgentDialogState();
+  State<DumpLeadAssignmentToAgentDialog> createState() =>
+      _DumpLeadAssignmentToAgentDialogState();
 }
 
-class _LeadAssignmentToAgentDialogState
-    extends State<LeadAssignmentToAgentDialog> {
+class _DumpLeadAssignmentToAgentDialogState
+    extends State<DumpLeadAssignmentToAgentDialog> {
   var agentId;
   var sourceId;
   var statusId;
@@ -1471,7 +1340,7 @@ class _LeadAssignmentToAgentDialogState
                                     Expanded(
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: AgentsList(
+                                        child: DumpAgentsList(
                                           selectedAgent: selectedAgent,
                                           onTap: (agent) {
                                             setState(() {
@@ -1513,10 +1382,10 @@ class _LeadAssignmentToAgentDialogState
                     ),
                   ),
                   const SizedBox(height: 20),
-                  TestPage(
+                  DumpTestPage(
                     formKey: _sourceKey,
                     title: 'Sources',
-                    list: widget.lp.sourcesList,
+                    list: widget.dp.sourcesList,
                     onTap: (id) {
                       setState(() {
                         sourceId = id;
@@ -1524,10 +1393,10 @@ class _LeadAssignmentToAgentDialogState
                     },
                   ),
                   const SizedBox(height: 20),
-                  TestPage(
+                  DumpTestPage(
                     formKey: _statusKey,
                     title: 'Status',
-                    list: widget.lp.statusList,
+                    list: widget.dp.statusList,
                     onTap: (id) {
                       setState(() {
                         statusId = id;
@@ -1603,20 +1472,19 @@ class _LeadAssignmentToAgentDialogState
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: themeColor,
-                    ),
+                  ),
                   onPressed: () async {
                     if (_agentKey.currentState!.validate() &&
                         _sourceKey.currentState!.validate() &&
                         _statusKey.currentState!.validate() &&
                         _dateKey.currentState!.validate()) {
-                      await widget.lp.assignToAgent();
+                      await widget.dp.assignToAgent();
                     }
                   },
                   child: const Text(
                     'Submit',
                     style: TextStyle(color: Colors.white),
                   ),
-
                 ),
               ],
               mainAxisAlignment: MainAxisAlignment.end,
@@ -1628,17 +1496,17 @@ class _LeadAssignmentToAgentDialogState
   }
 }
 
-class AgentsList extends StatefulWidget {
-  const AgentsList({Key? key, required this.onTap, this.selectedAgent})
+class DumpAgentsList extends StatefulWidget {
+  const DumpAgentsList({Key? key, required this.onTap, this.selectedAgent})
       : super(key: key);
   final void Function(AgentById agent) onTap;
   final AgentById? selectedAgent;
 
   @override
-  State<AgentsList> createState() => _AgentsListState();
+  State<DumpAgentsList> createState() => _DumpAgentsListState();
 }
 
-class _AgentsListState extends State<AgentsList> {
+class _DumpAgentsListState extends State<DumpAgentsList> {
   AgentById? selectedAgent;
   @override
   void initState() {
@@ -1650,11 +1518,11 @@ class _AgentsListState extends State<AgentsList> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<LeadsProvider>(builder: (context, lp, _) {
+    return Consumer<DumpLeadsProvider>(builder: (context, dp, _) {
       return ListView(
         children: [
-          if (lp.role != UserType.admin.name)
-            ...lp.agentsByTeamList.map(
+          if (dp.role != UserType.admin.name)
+            ...dp.agentsByTeamList.map(
               (e) {
                 return Container(
                   color: Colors.white,
@@ -1695,8 +1563,8 @@ class _AgentsListState extends State<AgentsList> {
                 );
               },
             ),
-          if (lp.role == UserType.admin.name)
-            ...lp.agentsByIdList.map(
+          if (dp.role == UserType.admin.name)
+            ...dp.agentsByIdList.map(
               (e) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
@@ -1721,8 +1589,8 @@ class _AgentsListState extends State<AgentsList> {
   }
 }
 
-class TestPage extends StatefulWidget {
-  const TestPage({
+class DumpTestPage extends StatefulWidget {
+  const DumpTestPage({
     Key? key,
     required this.title,
     required this.list,
@@ -1741,10 +1609,10 @@ class TestPage extends StatefulWidget {
   final void Function(int id) onTap;
 
   @override
-  State<TestPage> createState() => _TestPageState();
+  State<DumpTestPage> createState() => _DumpTestPageState();
 }
 
-class _TestPageState extends State<TestPage> {
+class _DumpTestPageState extends State<DumpTestPage> {
   late SingleValueDropDownController _cnt;
 
   @override
@@ -1833,8 +1701,8 @@ class _TestPageState extends State<TestPage> {
   }
 }
 
-class LeadsFilters extends StatefulWidget {
-  const LeadsFilters({
+class DumpLeadsFilters extends StatefulWidget {
+  const DumpLeadsFilters({
     Key? key,
     required this.token,
     this.selectedIndex,
@@ -1843,10 +1711,10 @@ class LeadsFilters extends StatefulWidget {
   final int? selectedIndex;
 
   @override
-  State<LeadsFilters> createState() => _LeadsFiltersState();
+  State<DumpLeadsFilters> createState() => _DumpLeadsFiltersState();
 }
 
-class _LeadsFiltersState extends State<LeadsFilters> {
+class _DumpLeadsFiltersState extends State<DumpLeadsFilters> {
   int selectedIndex = 0;
   List<AgentById> agentsByIdList = [];
   List<DeveloperModel> developersList = [];
@@ -1856,13 +1724,13 @@ class _LeadsFiltersState extends State<LeadsFilters> {
   List<String> priorityList = [];
 
   void init() {
-    var lp = Provider.of<LeadsProvider>(context, listen: false);
-    agentsByIdList = lp.agentsByIdList;
-    developersList = lp.developersList;
-    propertyList = lp.propertyList;
-    statusList = lp.statusList;
-    sourcesList = lp.sourcesList;
-    priorityList = lp.priorityList;
+    var dp = Provider.of<DumpLeadsProvider>(context, listen: false);
+    agentsByIdList = dp.agentsByIdList;
+    developersList = dp.developersList;
+    propertyList = dp.propertyList;
+    statusList = dp.statusList;
+    sourcesList = dp.sourcesList;
+    priorityList = dp.priorityList;
     if (widget.selectedIndex != null) {
       selectedIndex = widget.selectedIndex!;
     }
@@ -1876,7 +1744,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<LeadsProvider>(builder: (context, lp, _) {
+    return Consumer<DumpLeadsProvider>(builder: (context, dp, _) {
       return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -1892,7 +1760,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
         ),
         body: Row(
           children: [
-            Expanded(flex: 2, child: filterLeftSection(lp)),
+            Expanded(flex: 2, child: filterLeftSection(dp)),
             VerticalDivider(width: 1, color: themeColor),
             Expanded(
               flex: 3,
@@ -1905,9 +1773,9 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                             color: Colors.white,
                             child: Column(
                               children: [
-                                if (lp.role == UserType.admin.name)
+                                if (dp.role == UserType.admin.name)
                                   TextFormField(
-                                    controller: lp.queryAgents,
+                                    controller: dp.queryAgents,
                                     decoration: InputDecoration(
                                         border: OutlineInputBorder(
                                             borderRadius:
@@ -1915,10 +1783,10 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                     onChanged: (val) async {
                                       if (val.isNotEmpty) {
                                         // List<MapEntry<int, String>> ls = [];
-                                        // // print(lp.role == UserType.admin.name);
-                                        // if (lp.role != UserType.admin.name) {
-                                        //   for (var e in lp.agentsByTeamList) {
-                                        //     // print('user role ${lp.role}');
+                                        // // print(dp.role == UserType.admin.name);
+                                        // if (dp.role != UserType.admin.name) {
+                                        //   for (var e in  dp.agentsByTeamList) {
+                                        //     // print('user role ${dp.role}');
                                         //
                                         //     // print(e);
                                         //     for (var element in e.agents!) {
@@ -1932,16 +1800,16 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                         // }
                                         // // ls.map((e) => print(e));
                                         var list = filterSearchResult(
-                                            // lp.role != UserType.admin.name
+                                            //  dp.role != UserType.admin.name
                                             //     ? ls
-                                            lp.agentsByIdList
+                                            dp.agentsByIdList
                                                 .map((e) => MapEntry(
                                                     int.parse(e.id!), e.name!))
                                                 .toList(),
                                             val);
                                         setState(() {
                                           // agentsByTeamList = list
-                                          //     .map((e) => AgentsByTeam(name: lp.agentsByTeamList.firstWhere((element) => element.agents!.any((element) => element.id==e.key.toString())).name,agents: list.where((element) => lp.agentsByTeamList.firstWhere((element) => element.agents!.any((element) => element.id==e.key.toString())).agents.map((e) => AgentById(
+                                          //     .map((e) => AgentsByTeam(name:  dp.agentsByTeamList.firstWhere((element) => element.agents!.any((element) => element.id==e.key.toString())).name,agents: list.where((element) =>  dp.agentsByTeamList.firstWhere((element) => element.agents!.any((element) => element.id==e.key.toString())).agents.map((e) => AgentById(
                                           //   id: e.key.toString(),
                                           //   name: e.value,
                                           // )).toList()))))
@@ -1955,8 +1823,8 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                         });
                                       } else {
                                         setState(() {
-                                          agentsByIdList = lp.agentsByIdList;
-                                          lp.queryAgents.text = '';
+                                          agentsByIdList = dp.agentsByIdList;
+                                          dp.queryAgents.text = '';
                                         });
                                       }
                                     },
@@ -1973,8 +1841,8 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                     tileColor: themeColor.withOpacity(0.1),
                                     onTap: () {
                                       setState(() {
-                                        lp.selectedAgent = null;
-                                        lp.queryAgents.text = 'All';
+                                        dp.selectedAgent = null;
+                                        dp.queryAgents.text = 'All';
                                       });
                                     },
                                     leading: const Text(''),
@@ -1988,8 +1856,8 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                           Expanded(
                             child: ListView(
                               children: [
-                                if (lp.role != UserType.admin.name)
-                                  ...lp.agentsByTeamList.map(
+                                if (dp.role != UserType.admin.name)
+                                  ...dp.agentsByTeamList.map(
                                     (e) => Container(
                                       color: Colors.white,
                                       child: ExpansionTile(
@@ -2015,11 +1883,11 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                   tileColor: themeColor
                                                       .withOpacity(0.1),
                                                   value: agent.id!,
-                                                  groupValue: lp.selectedAgent,
+                                                  groupValue: dp.selectedAgent,
                                                   onChanged: (val) {
                                                     setState(() {
-                                                      lp.selectedAgent = val!;
-                                                      lp.queryAgents.text =
+                                                      dp.selectedAgent = val!;
+                                                      dp.queryAgents.text =
                                                           agent.name!;
                                                     });
                                                   },
@@ -2033,7 +1901,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                       ),
                                     ),
                                   ),
-                                if (lp.role == UserType.admin.name)
+                                if (dp.role == UserType.admin.name)
                                   ...agentsByIdList.map(
                                     (e) => Padding(
                                       padding:
@@ -2044,11 +1912,11 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                 BorderRadius.circular(5)),
                                         tileColor: themeColor.withOpacity(0.1),
                                         value: e.id!,
-                                        groupValue: lp.selectedAgent,
+                                        groupValue: dp.selectedAgent,
                                         onChanged: (val) {
                                           setState(() {
-                                            lp.selectedAgent = val!;
-                                            lp.queryAgents.text = e.name!;
+                                            dp.selectedAgent = val!;
+                                            dp.queryAgents.text = e.name!;
                                           });
                                         },
                                         title: Text(e.name!),
@@ -2073,9 +1941,9 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                 readOnly: true,
                                 // controller: TextEditingController(),
                                 decoration: InputDecoration(
-                                    hintText: lp.fromDate != null
+                                    hintText: dp.fromDate != null
                                         ? DateFormat('yyyy-MM-dd')
-                                            .format(lp.fromDate!)
+                                            .format(dp.fromDate!)
                                         : 'From',
                                     border: OutlineInputBorder(
                                         borderRadius:
@@ -2087,11 +1955,11 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                       lastDate: DateTime.now()
                                           .add(const Duration(days: 365)),
                                       initialDate:
-                                          lp.fromDate ?? DateTime.now());
+                                          dp.fromDate ?? DateTime.now());
                                   if (date != null) {
                                     setState(() {
-                                      lp.fromDate = date;
-                                      // lp.toDate = dateRange.end;
+                                      dp.fromDate = date;
+                                      //  dp.toDate = dateRange.end;
                                     });
                                   }
                                 },
@@ -2106,9 +1974,9 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                 readOnly: true,
                                 controller: TextEditingController(),
                                 decoration: InputDecoration(
-                                    hintText: lp.toDate != null
+                                    hintText: dp.toDate != null
                                         ? DateFormat('yyyy-MM-dd')
-                                            .format(lp.toDate!)
+                                            .format(dp.toDate!)
                                         : "To",
                                     border: OutlineInputBorder(
                                         borderRadius:
@@ -2119,11 +1987,11 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                       firstDate: DateTime(2000),
                                       lastDate: DateTime.now()
                                           .add(const Duration(days: 365)),
-                                      initialDate: lp.toDate ?? DateTime.now());
+                                      initialDate: dp.toDate ?? DateTime.now());
                                   if (date != null) {
                                     setState(() {
-                                      lp.toDate = date;
-                                      // lp.toDate = dateRange.end;
+                                      dp.toDate = date;
+                                      //  dp.toDate = dateRange.end;
                                     });
                                   }
                                 },
@@ -2134,7 +2002,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                             ? Column(
                                 children: [
                                   TextFormField(
-                                    controller: lp.queryDevelopers,
+                                    controller: dp.queryDevelopers,
                                     decoration: InputDecoration(
                                         border: OutlineInputBorder(
                                             borderRadius:
@@ -2142,7 +2010,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                     onChanged: (val) {
                                       if (val.isNotEmpty) {
                                         var list = filterSearchResult(
-                                            lp.developersList
+                                            dp.developersList
                                                 .map((e) =>
                                                     MapEntry(e.id!, e.name!))
                                                 .toList(),
@@ -2157,8 +2025,8 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                         });
                                       } else {
                                         setState(() {
-                                          developersList = lp.developersList;
-                                          lp.queryDevelopers.text = '';
+                                          developersList = dp.developersList;
+                                          dp.queryDevelopers.text = '';
                                         });
                                       }
                                     },
@@ -2170,8 +2038,8 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                     tileColor: themeColor.withOpacity(0.1),
                                     onTap: () {
                                       setState(() {
-                                        lp.selectedDeveloper = null;
-                                        lp.queryDevelopers.text = 'All';
+                                        dp.selectedDeveloper = null;
+                                        dp.queryDevelopers.text = 'All';
                                       });
                                     },
                                     leading: const Text(''),
@@ -2192,11 +2060,11 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                               tileColor:
                                                   themeColor.withOpacity(0.1),
                                               value: e.id!,
-                                              groupValue: lp.selectedDeveloper,
+                                              groupValue: dp.selectedDeveloper,
                                               onChanged: (val) {
                                                 setState(() {
-                                                  lp.selectedDeveloper = val;
-                                                  lp.queryDevelopers.text =
+                                                  dp.selectedDeveloper = val;
+                                                  dp.queryDevelopers.text =
                                                       e.name!;
                                                 });
                                               },
@@ -2217,7 +2085,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                         child: Column(
                                           children: [
                                             TextFormField(
-                                              controller: lp.queryProperty,
+                                              controller: dp.queryProperty,
                                               decoration: InputDecoration(
                                                   border: OutlineInputBorder(
                                                       borderRadius:
@@ -2226,7 +2094,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                               onChanged: (val) {
                                                 if (val.isNotEmpty) {
                                                   var list = filterSearchResult(
-                                                      lp.propertyList
+                                                      dp.propertyList
                                                           .map((e) => MapEntry(
                                                               e.id!, e.name!))
                                                           .toList(),
@@ -2243,8 +2111,8 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                 } else {
                                                   setState(() {
                                                     propertyList =
-                                                        lp.propertyList;
-                                                    lp.queryProperty.text = '';
+                                                        dp.propertyList;
+                                                    dp.queryProperty.text = '';
                                                   });
                                                 }
                                               },
@@ -2265,8 +2133,8 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                     themeColor.withOpacity(0.1),
                                                 onTap: () {
                                                   setState(() {
-                                                    lp.selectedProperty = null;
-                                                    lp.queryProperty.text =
+                                                    dp.selectedProperty = null;
+                                                    dp.queryProperty.text =
                                                         'All';
                                                   });
                                                 },
@@ -2299,13 +2167,13 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                         .withOpacity(0.1),
                                                     value: e.id!,
                                                     groupValue:
-                                                        lp.selectedProperty,
+                                                        dp.selectedProperty,
                                                     onChanged: (val) {
                                                       setState(() {
-                                                        // if (lp.selectedAgent==e) {
-                                                        lp.selectedProperty =
+                                                        // if (dp.selectedAgent==e) {
+                                                        dp.selectedProperty =
                                                             val!;
-                                                        lp.queryProperty.text =
+                                                        dp.queryProperty.text =
                                                             e.name!;
                                                       });
                                                     },
@@ -2327,7 +2195,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                             child: Column(
                                               children: [
                                                 TextFormField(
-                                                  controller: lp.queryStatus,
+                                                  controller: dp.queryStatus,
                                                   decoration: InputDecoration(
                                                       border:
                                                           OutlineInputBorder(
@@ -2339,7 +2207,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                     if (val.isNotEmpty) {
                                                       var list =
                                                           filterSearchResult(
-                                                              lp
+                                                              dp
                                                                   .statusList
                                                                   .map((e) =>
                                                                       MapEntry(
@@ -2359,8 +2227,8 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                     } else {
                                                       setState(() {
                                                         statusList =
-                                                            lp.statusList;
-                                                        lp.queryStatus.text =
+                                                            dp.statusList;
+                                                        dp.queryStatus.text =
                                                             '';
                                                       });
                                                     }
@@ -2384,34 +2252,34 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                                         5)),
                                                     tileColor: themeColor
                                                         .withOpacity(0.1),
-                                                    value: lp.multiSelectedStatus
+                                                    value: dp.multiSelectedStatus
                                                                 .length ==
-                                                            lp.statusList
+                                                            dp.statusList
                                                                 .length ||
-                                                        lp.multiSelectedStatus
+                                                        dp.multiSelectedStatus
                                                             .isEmpty,
                                                     onChanged: (bool? val) {
                                                       setState(() {
                                                         if (val!) {
-                                                          lp.multiSelectedStatus
+                                                          dp.multiSelectedStatus
                                                               .clear();
-                                                          lp.multiSelectedStatus
-                                                              .addAll(lp
+                                                          dp.multiSelectedStatus
+                                                              .addAll(dp
                                                                   .statusList);
                                                         } else {
-                                                          lp.multiSelectedStatus =
+                                                          dp.multiSelectedStatus =
                                                               [];
                                                         }
-                                                        if (lp.multiSelectedStatus
+                                                        if (dp.multiSelectedStatus
                                                                     .length ==
-                                                                lp.statusList
+                                                                dp.statusList
                                                                     .length ||
-                                                            lp.multiSelectedStatus
+                                                            dp.multiSelectedStatus
                                                                 .isEmpty) {
-                                                          lp.queryStatus.text =
+                                                          dp.queryStatus.text =
                                                               'All';
                                                         } else {
-                                                          lp.queryStatus.text =
+                                                          dp.queryStatus.text =
                                                               '';
                                                         }
                                                       });
@@ -2440,28 +2308,28 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                                           5)),
                                                       tileColor: themeColor
                                                           .withOpacity(0.1),
-                                                      value: lp
+                                                      value: dp
                                                           .multiSelectedStatus
                                                           .contains(e),
                                                       onChanged: (val) {
                                                         setState(() {
                                                           if (val!) {
-                                                            lp.multiSelectedStatus
+                                                            dp.multiSelectedStatus
                                                                 .add(e);
                                                           } else {
-                                                            lp.multiSelectedStatus
+                                                            dp.multiSelectedStatus
                                                                 .remove(e);
                                                           }
-                                                          if (lp.multiSelectedStatus
+                                                          if (dp.multiSelectedStatus
                                                                       .length ==
-                                                                  lp.statusList
+                                                                  dp.statusList
                                                                       .length ||
-                                                              lp.multiSelectedStatus
+                                                              dp.multiSelectedStatus
                                                                   .isEmpty) {
-                                                            lp.queryStatus
+                                                            dp.queryStatus
                                                                 .text = 'All';
                                                           } else {
-                                                            lp.queryStatus
+                                                            dp.queryStatus
                                                                 .text = '';
                                                           }
                                                         });
@@ -2484,7 +2352,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                   children: [
                                                     TextFormField(
                                                       controller:
-                                                          lp.querySources,
+                                                          dp.querySources,
                                                       decoration: InputDecoration(
                                                           border: OutlineInputBorder(
                                                               borderRadius:
@@ -2494,7 +2362,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                       onChanged: (val) {
                                                         if (val.isNotEmpty) {
                                                           var list = filterSearchResult(
-                                                              lp.sourcesList
+                                                              dp.sourcesList
                                                                   .map((e) =>
                                                                       MapEntry(
                                                                           e.id!,
@@ -2514,8 +2382,8 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                         } else {
                                                           setState(() {
                                                             sourcesList =
-                                                                lp.sourcesList;
-                                                            lp.querySources
+                                                                dp.sourcesList;
+                                                            dp.querySources
                                                                 .text = '';
                                                           });
                                                         }
@@ -2531,34 +2399,34 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                                           5)),
                                                       tileColor: themeColor
                                                           .withOpacity(0.1),
-                                                      value: lp.multiSelectedSources
+                                                      value: dp.multiSelectedSources
                                                                   .length ==
-                                                              lp.sourcesList
+                                                              dp.sourcesList
                                                                   .length ||
-                                                          lp.multiSelectedSources
+                                                          dp.multiSelectedSources
                                                               .isEmpty,
                                                       onChanged: (bool? val) {
                                                         setState(() {
                                                           if (val!) {
-                                                            lp.multiSelectedSources
+                                                            dp.multiSelectedSources
                                                                 .clear();
-                                                            lp.multiSelectedSources
-                                                                .addAll(lp
+                                                            dp.multiSelectedSources
+                                                                .addAll(dp
                                                                     .sourcesList);
                                                           } else {
-                                                            lp.multiSelectedSources =
+                                                            dp.multiSelectedSources =
                                                                 [];
                                                           }
-                                                          if (lp.multiSelectedSources
+                                                          if (dp.multiSelectedSources
                                                                       .length ==
-                                                                  lp.sourcesList
+                                                                  dp.sourcesList
                                                                       .length ||
-                                                              lp.multiSelectedSources
+                                                              dp.multiSelectedSources
                                                                   .isEmpty) {
-                                                            lp.querySources
+                                                            dp.querySources
                                                                 .text = 'All';
                                                           } else {
-                                                            lp.querySources
+                                                            dp.querySources
                                                                 .text = '';
                                                           }
                                                         });
@@ -2586,30 +2454,30 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                                           5)),
                                                           tileColor: themeColor
                                                               .withOpacity(0.1),
-                                                          value: lp
+                                                          value: dp
                                                               .multiSelectedSources
                                                               .contains(e),
                                                           // groupValue: true,
                                                           onChanged: (val) {
                                                             setState(() {
                                                               if (val!) {
-                                                                lp.multiSelectedSources
+                                                                dp.multiSelectedSources
                                                                     .add(e);
                                                               } else {
-                                                                lp.multiSelectedSources
+                                                                dp.multiSelectedSources
                                                                     .remove(e);
                                                               }
-                                                              if (lp.multiSelectedSources
+                                                              if (dp.multiSelectedSources
                                                                           .length ==
-                                                                      lp.sourcesList
+                                                                      dp.sourcesList
                                                                           .length ||
-                                                                  lp.multiSelectedSources
+                                                                  dp.multiSelectedSources
                                                                       .isEmpty) {
-                                                                lp.querySources
+                                                                dp.querySources
                                                                         .text =
                                                                     'All';
                                                               } else {
-                                                                lp.querySources
+                                                                dp.querySources
                                                                     .text = '';
                                                               }
                                                             });
@@ -2628,7 +2496,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                 children: [
                                                   TextFormField(
                                                     controller:
-                                                        lp.queryPriority,
+                                                        dp.queryPriority,
                                                     decoration: InputDecoration(
                                                         border: OutlineInputBorder(
                                                             borderRadius:
@@ -2638,9 +2506,9 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                     onChanged: (val) {
                                                       if (val.isNotEmpty) {
                                                         var list = filterSearchResult(
-                                                            lp.priorityList
+                                                            dp.priorityList
                                                                 .map((e) => MapEntry(
-                                                                    lp.priorityList
+                                                                    dp.priorityList
                                                                         .indexOf(
                                                                             e),
                                                                     e))
@@ -2655,8 +2523,8 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                       } else {
                                                         setState(() {
                                                           priorityList =
-                                                              lp.priorityList;
-                                                          lp.querySources.text =
+                                                              dp.priorityList;
+                                                          dp.querySources.text =
                                                               '';
                                                         });
                                                       }
@@ -2681,12 +2549,12 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                             .withOpacity(0.1),
                                                         value: e,
                                                         groupValue:
-                                                            lp.selectedPriority,
+                                                            dp.selectedPriority,
                                                         onChanged: (val) {
                                                           setState(() {
-                                                            lp.selectedPriority =
+                                                            dp.selectedPriority =
                                                                 val!;
-                                                            lp.queryPriority
+                                                            dp.queryPriority
                                                                 .text = e;
                                                           });
                                                         },
@@ -2699,7 +2567,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                             : Column(
                                                 children: [
                                                   TextFormField(
-                                                    controller: lp.query,
+                                                    controller: dp.query,
                                                     decoration: InputDecoration(
                                                         hintText:
                                                             'Search By Words',
@@ -2710,7 +2578,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                                                                         5))),
                                                     onChanged: (val) {
                                                       setState(() {
-                                                        // lp.query.text=val;
+                                                        //  dp.query.text=val;
                                                       });
                                                     },
                                                   ),
@@ -2732,9 +2600,9 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                   children: [
                     TextButton(
                       onPressed: () async {
-                        lp.isFilterApplied(false);
+                        dp.isFilterApplied(false);
                         Get.back();
-                        await lp.applyFilter(lp);
+                        await dp.applyFilter(dp);
                         Future.delayed(const Duration(seconds: 1), () {});
                       },
                       child: Row(
@@ -2749,14 +2617,14 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:themeColor,
-                        disabledBackgroundColor:  const Color(0xABA4A3A3),
+                        backgroundColor: themeColor,
+                        disabledBackgroundColor: const Color(0xABA4A3A3),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5)),),
-
+                            borderRadius: BorderRadius.circular(5)),
+                      ),
                       onPressed: () async {
                         Get.back();
-                        await lp.applyFilter(lp);
+                        await dp.applyFilter(dp);
                       },
                       child: const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 28.0),
@@ -2776,21 +2644,21 @@ class _LeadsFiltersState extends State<LeadsFilters> {
     });
   }
 
-  ListView filterLeftSection(LeadsProvider lp) {
+  ListView filterLeftSection(DumpLeadsProvider dp) {
     return ListView(
       children: [
-        ...lp.categoriesList.map(
+        ...dp.categoriesList.map(
           (e) => Column(
             children: [
               Stack(
                 children: [
                   ListTile(
-                    tileColor: selectedIndex == lp.categoriesList.indexOf(e)
+                    tileColor: selectedIndex == dp.categoriesList.indexOf(e)
                         ? themeColor.withOpacity(0.1)
                         : null,
                     onTap: () {
                       setState(() {
-                        selectedIndex = lp.categoriesList.indexOf(e);
+                        selectedIndex = dp.categoriesList.indexOf(e);
                       });
                     },
                     title: SizedBox(
@@ -2803,7 +2671,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                             e,
                             style: TextStyle(
                                 color: selectedIndex ==
-                                        lp.categoriesList.indexOf(e)
+                                        dp.categoriesList.indexOf(e)
                                     ? Get.theme.primaryColor
                                     : null),
                           ),
@@ -2811,32 +2679,32 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                       ),
                     ),
                     trailing: Text(
-                      e == lp.categoriesList[0] && lp.selectedAgent != null
+                      e == dp.categoriesList[0] && dp.selectedAgent != null
                           ? 1.toString()
-                          : e == lp.categoriesList[1] &&
-                                  (lp.fromDate != null || lp.toDate != null)
+                          : e == dp.categoriesList[1] &&
+                                  (dp.fromDate != null || dp.toDate != null)
                               ? '🔘'
-                              : e == lp.categoriesList[2] &&
-                                      lp.selectedDeveloper != null
+                              : e == dp.categoriesList[2] &&
+                                      dp.selectedDeveloper != null
                                   ? 1.toString()
-                                  : e == lp.categoriesList[3] &&
-                                          lp.selectedProperty != null
+                                  : e == dp.categoriesList[3] &&
+                                          dp.selectedProperty != null
                                       ? 1.toString()
-                                      : e == lp.categoriesList[4] &&
-                                              lp.multiSelectedStatus.isNotEmpty
-                                          ? lp.multiSelectedStatus.length
+                                      : e == dp.categoriesList[4] &&
+                                              dp.multiSelectedStatus.isNotEmpty
+                                          ? dp.multiSelectedStatus.length
                                               .toString()
-                                          : e == lp.categoriesList[5] &&
-                                                  lp.multiSelectedSources
+                                          : e == dp.categoriesList[5] &&
+                                                  dp.multiSelectedSources
                                                       .isNotEmpty
-                                              ? lp.multiSelectedSources.length
+                                              ? dp.multiSelectedSources.length
                                                   .toString()
-                                              : e == lp.categoriesList[6] &&
-                                                      lp.selectedPriority !=
+                                              : e == dp.categoriesList[6] &&
+                                                      dp.selectedPriority !=
                                                           null
                                                   ? 1.toString()
-                                                  : e == lp.categoriesList[7] &&
-                                                          lp.query.text
+                                                  : e == dp.categoriesList[7] &&
+                                                          dp.query.text
                                                               .isNotEmpty
                                                       ? '💤'
                                                       : '',
@@ -2847,7 +2715,7 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Container(
-                        color: selectedIndex == lp.categoriesList.indexOf(e)
+                        color: selectedIndex == dp.categoriesList.indexOf(e)
                             ? themeColor.withOpacity(1)
                             : null,
                         width: 7,

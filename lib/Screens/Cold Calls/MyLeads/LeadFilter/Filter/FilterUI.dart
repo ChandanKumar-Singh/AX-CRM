@@ -509,7 +509,7 @@ class _FilterFormWidgetState extends State<FilterFormWidget> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    FlatButton(
+                    TextButton(
                       onPressed: () async {
                         Provider.of<FilterProvider>(context, listen: false)
                             .multipleSelectedItem
@@ -537,10 +537,12 @@ class _FilterFormWidgetState extends State<FilterFormWidget> {
                         ],
                       ),
                     ),
-                    RaisedButton(
-                      color: themeColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5)),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: themeColor,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5)),),
+
                       onPressed: () async {
                         if (kDebugMode) {
                           print(submitData);
