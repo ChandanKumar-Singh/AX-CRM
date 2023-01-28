@@ -7,11 +7,16 @@ import '../../../../Provider/LeadsProvider.dart';
 import 'ScheduleACallBack.dart';
 
 class ScheduledCall extends StatefulWidget {
-  const ScheduledCall({Key? key, required this.authToken, required this.leadId})
+  const ScheduledCall(
+      {Key? key,
+      required this.authToken,
+      required this.leadId,
+      required this.leadType})
       : super(key: key);
 
   final String authToken;
   final String leadId;
+  final String leadType;
   @override
   State<ScheduledCall> createState() => _ScheduledCallState();
 }
@@ -41,7 +46,8 @@ class _ScheduledCallState extends State<ScheduledCall> {
       body: Consumer<LeadsProvider>(
         builder: (context, leadsProvider, child) {
           debugPrint(leadsProvider.LeadsUserHistory.length.toString());
-          debugPrint('Scheduled call ---> ${leadsProvider.IsLoading.toString()}');
+          debugPrint(
+              'Scheduled call ---> ${leadsProvider.IsLoading.toString()}');
           return Stack(
             children: [
               ListView.builder(
@@ -52,9 +58,10 @@ class _ScheduledCallState extends State<ScheduledCall> {
                           left: 20.0,
                           right: 20.0,
                           top: 15,
-                          bottom: index == leadsProvider.LeadsUserHistory.length - 1
-                              ? 50
-                              : 0),
+                          bottom:
+                              index == leadsProvider.LeadsUserHistory.length - 1
+                                  ? 50
+                                  : 0),
                       child: Container(
                         // height: 100,
                         decoration: BoxDecoration(
@@ -74,7 +81,8 @@ class _ScheduledCallState extends State<ScheduledCall> {
                                       text: TextSpan(
                                           text: 'Plan To Do : ',
                                           style: const TextStyle(
-                                              fontSize: 13, color: Colors.black87),
+                                              fontSize: 13,
+                                              color: Colors.black87),
                                           children: [
                                             TextSpan(
                                               text: leadsProvider
@@ -105,32 +113,34 @@ class _ScheduledCallState extends State<ScheduledCall> {
                                               .scheduleTime!,
                                       style: const TextStyle(fontSize: 15),
                                     ),
-                                    leadsProvider.LeadsUserHistory[index].comment ==
+                                    leadsProvider.LeadsUserHistory[index]
+                                                .comment ==
                                             null
                                         ? const Text(
-                                          'Comment :   ---',
-                                          style: TextStyle(fontSize: 15),
-                                        )
+                                            'Comment :   ---',
+                                            style: TextStyle(fontSize: 15),
+                                          )
                                         : RichText(
-                                          text: TextSpan(
-                                              text: 'Comment : ',
-                                              style: const TextStyle(
-                                                  fontSize: 13,
-                                                  color: Colors.black54),
-                                              children: [
-                                                TextSpan(
-                                                  text: leadsProvider
-                                                      .LeadsUserHistory[index]
-                                                      .comment!,
-                                                  style: const TextStyle(
-                                                      fontSize: 13,
-                                                      color: Colors.black54),
-                                                )
-                                              ]),
-                                        ),
+                                            text: TextSpan(
+                                                text: 'Comment : ',
+                                                style: const TextStyle(
+                                                    fontSize: 13,
+                                                    color: Colors.black54),
+                                                children: [
+                                                  TextSpan(
+                                                    text: leadsProvider
+                                                        .LeadsUserHistory[index]
+                                                        .comment!,
+                                                    style: const TextStyle(
+                                                        fontSize: 13,
+                                                        color: Colors.black54),
+                                                  )
+                                                ]),
+                                          ),
                                   ],
                                 ),
                               ),
+                              if(widget.leadType=='lead')
                               Row(
                                 children: [
                                   InkWell(
@@ -150,7 +160,8 @@ class _ScheduledCallState extends State<ScheduledCall> {
                                               actions: [
                                                 TextButton(
                                                     onPressed: () =>
-                                                        Navigator.of(context).pop(),
+                                                        Navigator.of(context)
+                                                            .pop(),
                                                     child: const Text('No')),
                                                 InkWell(
                                                     onTap: () async {
@@ -167,7 +178,8 @@ class _ScheduledCallState extends State<ScheduledCall> {
                                                                   .toString(),
                                                               context)
                                                           .then((value) =>
-                                                              Navigator.of(context)
+                                                              Navigator.of(
+                                                                      context)
                                                                   .pop())
                                                           .then((value) async {
                                                         await Provider.of<
@@ -175,13 +187,14 @@ class _ScheduledCallState extends State<ScheduledCall> {
                                                                 context,
                                                                 listen: false)
                                                             .getLeadsHistory(
-                                                                widget.authToken,
+                                                                widget
+                                                                    .authToken,
                                                                 widget.leadId);
                                                         // Navigator.of(context).pop();
                                                       });
                                                     },
-                                                    child:
-                                                        const Text('I\'m sure!')),
+                                                    child: const Text(
+                                                        'I\'m sure!')),
                                               ],
                                             );
                                           });
@@ -217,17 +230,22 @@ class _ScheduledCallState extends State<ScheduledCall> {
                                           context: context,
                                           builder: (context) {
                                             return Padding(
-                                              padding: const EdgeInsets.all(8.0),
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
                                               child: Container(
                                                 height: MediaQuery.of(context)
                                                         .size
                                                         .height *
                                                     0.7,
                                                 decoration: const BoxDecoration(
-                                                  borderRadius: BorderRadius.only(
-                                                    topLeft: Radius.circular(20),
-                                                    topRight: Radius.circular(20),
-                                                    bottomLeft: Radius.circular(20),
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                    topLeft:
+                                                        Radius.circular(20),
+                                                    topRight:
+                                                        Radius.circular(20),
+                                                    bottomLeft:
+                                                        Radius.circular(20),
                                                     bottomRight:
                                                         Radius.circular(20),
                                                   ),
@@ -235,8 +253,10 @@ class _ScheduledCallState extends State<ScheduledCall> {
                                                 ),
                                                 child: EditScheduledCall(
                                                     leadHistory: leadsProvider
-                                                        .LeadsUserHistory[index],
-                                                    authToken: widget.authToken),
+                                                            .LeadsUserHistory[
+                                                        index],
+                                                    authToken:
+                                                        widget.authToken),
                                               ),
                                             );
                                           });
@@ -254,7 +274,7 @@ class _ScheduledCallState extends State<ScheduledCall> {
                       ),
                     );
                   }),
-              if (s.height < 700)
+              if (widget.leadType=='lead'&&s.height < 700)
                 Positioned(
                   bottom: 110,
                   right: 10,
@@ -267,7 +287,8 @@ class _ScheduledCallState extends State<ScheduledCall> {
                             return Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Container(
-                                height: MediaQuery.of(context).size.height * 0.7,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.7,
                                 decoration: const BoxDecoration(
                                   borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(20),
@@ -329,71 +350,73 @@ class _ScheduledCallState extends State<ScheduledCall> {
           );
         },
       ),
-      floatingActionButton:s.height>700? InkWell(
-        onTap: () {
-          showCupertinoModalPopup(
-              context: context,
-              builder: (context) {
-                return Padding(
+      floatingActionButton: widget.leadType!='lead'?null:s.height > 700
+          ? InkWell(
+              onTap: () {
+                showCupertinoModalPopup(
+                    context: context,
+                    builder: (context) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
+                              bottomLeft: Radius.circular(20),
+                              bottomRight: Radius.circular(20),
+                            ),
+                            color: Colors.white,
+                          ),
+                          child: ScheduleACallBack(
+                            leadId: widget.leadId,
+                            authToken: widget.authToken,
+                          ),
+                        ),
+                      );
+                    });
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.grey,
+                      offset: Offset(0.0, 1.0), //(x,y)
+                      blurRadius: 9.0,
+                    ),
+                  ],
+                ),
+                height: 50,
+                width: 200,
+                child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: MediaQuery.of(context).size.height * 0.7,
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                        bottomLeft: Radius.circular(20),
-                        bottomRight: Radius.circular(20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(
+                        Icons.add,
+                        color: Colors.white,
                       ),
-                      color: Colors.white,
-                    ),
-                    child: ScheduleACallBack(
-                      leadId: widget.leadId,
-                      authToken: widget.authToken,
-                    ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        'Schedule A Call',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                );
-              });
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.blue,
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.grey,
-                offset: Offset(0.0, 1.0), //(x,y)
-                blurRadius: 9.0,
+                ),
               ),
-            ],
-          ),
-          height: 50,
-          width: 200,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(
-                  Icons.add,
-                  color: Colors.white,
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  'Schedule A Call',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ):Container(),
+            )
+          : Container(),
     );
   }
 }

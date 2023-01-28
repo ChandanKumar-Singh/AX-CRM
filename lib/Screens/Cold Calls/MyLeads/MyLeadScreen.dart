@@ -311,7 +311,7 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Expanded(child: Text(' Active Leads')),
+          const Expanded(child: Text(' Active Leads',textAlign: TextAlign.start,)),
           Text('( ${lp.total} )')
         ],
       ),
@@ -336,6 +336,9 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
               ),
           ],
         ),
+        ///TODO:
+        ///Closed leads popup menu
+        /*
         const SizedBox(width: 10),
         PopupMenuButton<int>(
           onSelected: (val) {
@@ -381,6 +384,7 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           padding: const EdgeInsets.all(10),
         ),
+        */
       ],
       bottom: lp.isFlrApplied
           ? PreferredSize(
@@ -820,7 +824,7 @@ class _LeadsCardState extends State<LeadsCard> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => TestCallScreen(
-                                  leadId: lead.leadId.toString(),
+                                  leadId: lead.leadId.toString(),leadType: 'lead',
                                 ),
                               ),
                             );

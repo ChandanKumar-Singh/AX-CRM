@@ -304,7 +304,7 @@ class LeadsProvider with ChangeNotifier {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => TestCallScreen(leadId: leadId),
+              builder: (context) => TestCallScreen(leadId: leadId,leadType: 'lead'),
             ),
           );
           notifyListeners();

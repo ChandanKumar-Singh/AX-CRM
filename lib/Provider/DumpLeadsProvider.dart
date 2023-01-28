@@ -65,7 +65,7 @@ class DumpLeadsProvider with ChangeNotifier {
     _isFirstLoadRunning = true;
     notifyListeners();
     var page = 1;
-    var url = '${ApiManager.BASE_URL}${ApiManager.leads}?page=$page';
+    var url = '${ApiManager.BASE_URL}${ApiManager.dumpedLeads}?page=$page';
     debugPrint(url);
     final headers = {
       'Authorization-token': '3MPHJP0BC63435345341',
@@ -154,7 +154,7 @@ class DumpLeadsProvider with ChangeNotifier {
       notifyListeners();
       _page += 1;
       notifyListeners(); // Increase _page by 1
-      var url = '${ApiManager.BASE_URL}${ApiManager.leads}?page=$_page';
+      var url = '${ApiManager.BASE_URL}${ApiManager.dumpedLeads}?page=$_page';
       debugPrint('LoadMore Url : $url');
       final headers = {
         'Authorization-token': '3MPHJP0BC63435345341',
@@ -304,7 +304,10 @@ class DumpLeadsProvider with ChangeNotifier {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => TestCallScreen(leadId: leadId),
+              builder: (context) => TestCallScreen(
+                leadId: leadId,
+                leadType: 'dumped',
+              ),
             ),
           );
           notifyListeners();

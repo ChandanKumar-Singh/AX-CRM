@@ -34,10 +34,12 @@ class TestCallScreen extends StatefulWidget {
       authToken;
   List<NewComment> notes;*/
   String leadId;
+  String leadType;
 
   TestCallScreen({
     Key? key,
     required this.leadId,
+    required this.leadType,
     /*required this.leadId,
     required this.leadName,
     required this.Name,
@@ -312,109 +314,114 @@ class _TestCallScreenState extends State<TestCallScreen> {
                     color: themeColor,
                     thickness: 1,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            // openWhatsapp('971581546367');
-                            // openWhatsapp('971927632972');
-                            if (agentId == myId) {
-                              openWhatsapp(leadContact);
-                            } else {
-                              Fluttertoast.showToast(
-                                  msg: 'You don\'t have permission. ');
-                            }
-                          },
-                          child: Column(
-                            children: [
-                              const Icon(
-                                Icons.whatsapp_outlined,
-                                size: 40,
-                                color: Colors.greenAccent,
-                              ),
-                              SizedBox(
-                                height: 5.h,
-                              ),
-                              const Text('Whatsapp'),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          height: 65.h,
-                          width: 1,
-                          color: Colors.black,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            /*Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AddLeadNoteScreen(
-                                  leadId: widget.leadId,
-                                  leadName: widget.leadName,
-                                ),
-                              ),
-                            );*/
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => CompleteLeadProfile(
-                                    leadId: widget.leadId,
-                                    leadName: leadName,
-                                    agentId: agentId,
+                  if(widget.leadType=='lead')
+                  Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                // openWhatsapp('971581546367');
+                                // openWhatsapp('971927632972');
+                                if (agentId == myId) {
+                                  openWhatsapp(leadContact);
+                                } else {
+                                  Fluttertoast.showToast(
+                                      msg: 'You don\'t have permission. ');
+                                }
+                              },
+                              child: Column(
+                                children: [
+                                  const Icon(
+                                    Icons.whatsapp_outlined,
+                                    size: 40,
+                                    color: Colors.greenAccent,
                                   ),
-                                ));
-                          },
-                          child: Column(
-                            children: [
-                              Image.asset(
-                                'assets/images/addNote.png',
-                                height: 40,
+                                  SizedBox(
+                                    height: 5.h,
+                                  ),
+                                  const Text('Whatsapp'),
+                                ],
                               ),
-                              SizedBox(
-                                height: 10.h,
+                            ),
+                            Container(
+                              height: 65.h,
+                              width: 1,
+                              color: Colors.black,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                /*Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AddLeadNoteScreen(
+                                      leadId: widget.leadId,
+                                      leadName: widget.leadName,
+                                    ),
+                                  ),
+                                );*/
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CompleteLeadProfile(
+                                        leadId: widget.leadId,
+                                        leadName: leadName,
+                                        agentId: agentId,
+                                      ),
+                                    ));
+                              },
+                              child: Column(
+                                children: [
+                                  Image.asset(
+                                    'assets/images/addNote.png',
+                                    height: 40,
+                                  ),
+                                  SizedBox(
+                                    height: 10.h,
+                                  ),
+                                  const Text('Change Status'),
+                                ],
                               ),
-                              const Text('Change Status'),
-                            ],
-                          ),
+                            ),
+                            Container(
+                              height: 65.h,
+                              width: 1,
+                              color: Colors.black,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                if (agentId == myId) {
+                                  _textMe();
+                                } else {
+                                  Fluttertoast.showToast(
+                                      msg: 'You don\'t have permission. ');
+                                }
+                              },
+                              child: Column(
+                                children: [
+                                  const Icon(
+                                    Icons.message,
+                                    size: 40,
+                                    color: Colors.green,
+                                  ),
+                                  SizedBox(
+                                    height: 5.h,
+                                  ),
+                                  const Text('Messages'),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        Container(
-                          height: 65.h,
-                          width: 1,
-                          color: Colors.black,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            if (agentId == myId) {
-                              _textMe();
-                            } else {
-                              Fluttertoast.showToast(
-                                  msg: 'You don\'t have permission. ');
-                            }
-                          },
-                          child: Column(
-                            children: [
-                              const Icon(
-                                Icons.message,
-                                size: 40,
-                                color: Colors.green,
-                              ),
-                              SizedBox(
-                                height: 5.h,
-                              ),
-                              const Text('Messages'),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Divider(
-                    color: themeColor,
-                    thickness: 1,
+                      ),
+                      Divider(
+                        color: themeColor,
+                        thickness: 1,
+                      ),
+                    ],
                   ),
                   SizedBox(
                     height: 10.h,
@@ -589,12 +596,12 @@ class _TestCallScreenState extends State<TestCallScreen> {
                                   agents: _leadInfoList[0].lead!.agents!,
                                 ),
                                 LeadNotesScreen(
-                                  notes: notes,
+                                  notes: notes, leadType: widget.leadType,
                                   addCommentWidget: AddLeadNoteScreen(
                                       leadId: leadId, leadName: leadName),
                                 ),
                                 ScheduledCall(
-                                    authToken: authToken, leadId: leadId),
+                                    authToken: authToken, leadId: leadId, leadType: widget.leadType),
 
                                 // const AddLeadActivityScreen(),
                                 //LeadHistoryScreen(leadId: widget.leadId),

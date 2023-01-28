@@ -10,9 +10,12 @@ import '../../../../Models/LeadInfoModel.dart';
 class LeadNotesScreen extends StatefulWidget {
   List<NewComment> notes;
   Widget addCommentWidget;
-
+  final String leadType;
   LeadNotesScreen(
-      {Key? key, required this.notes, required this.addCommentWidget})
+      {Key? key,
+      required this.notes,
+      required this.addCommentWidget,
+      required this.leadType})
       : super(key: key);
 
   @override
@@ -91,7 +94,7 @@ class _LeadNotesScreenState extends State<LeadNotesScreen> {
               );
             },
           ),
-          if (s.height < 700)
+          if (widget.leadType=='lead'&&s.height < 700)
             Positioned(
               bottom: 110,
               right: 10,
@@ -161,7 +164,7 @@ class _LeadNotesScreenState extends State<LeadNotesScreen> {
             )
         ],
       ),
-      floatingActionButton: s.height > 700
+      floatingActionButton: widget.leadType!='lead'?null:s.height > 700
           ? InkWell(
               onTap: () {
                 showCupertinoModalPopup(

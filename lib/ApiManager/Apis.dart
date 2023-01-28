@@ -6,6 +6,7 @@ class ApiManager {
   static const Login = 'login?debug=true';
   static const forget = 'forgetPassword?debug=true';
   static const leads = 'leads';
+  static const dumpedLeads = 'dumpedLeads';
   static const serviceSatisfactionSurvey = 'serviceSatisfactionSurvey';
   static const closelaed = 'closelaed';
   static const getLead = 'getLead';
@@ -23,6 +24,8 @@ class ApiManager {
       'changeColdCallStatus'; //where 29826 is lead id
   static const coldCallConvetToLead =
       'coldCallConvetToLead'; //where 29826 is lead id
+    static const dumpedLeadMovedToActiveLead =
+      'dumpedLeadMovedToActiveLead'; //where 29826 is lead id
   static const addLeadActivitySchedule =
       'addLeadActivity'; //where 29826 is lead id
   static const leadSource = 'source';

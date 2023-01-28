@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:crm_application/ApiManager/Apis.dart';
 import 'package:crm_application/Models/LeadsModel.dart';
 import 'package:crm_application/Provider/DialProvider.dart';
 import 'package:crm_application/Provider/DumpLeadsProvider.dart';
@@ -30,6 +31,7 @@ import 'package:provider/provider.dart';
 import 'package:rotated_corner_decoration/rotated_corner_decoration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
 class DumpedLeadScreen extends StatefulWidget {
   const DumpedLeadScreen({Key? key}) : super(key: key);
@@ -56,7 +58,8 @@ class _MyLeadScreenState extends State<DumpedLeadScreen> {
       Provider.of<DumpLeadsProvider>(context, listen: false).token = authToken;
       Provider.of<DumpLeadsProvider>(context, listen: false).role =
           jsonDecode(pref.getString('user')!)['role'];
-      await Provider.of<DumpLeadsProvider>(context, listen: false).getDumpedLeads();
+      await Provider.of<DumpLeadsProvider>(context, listen: false)
+          .getDumpedLeads();
       await Provider.of<DumpLeadsProvider>(context, listen: false)
           .initFilterMethods();
     } catch (e) {
@@ -313,10 +316,21 @@ class _MyLeadScreenState extends State<DumpedLeadScreen> {
 
   AppBar filterModeAppBar(DumpLeadsProvider dp) {
     return AppBar(
+      automaticallyImplyLeading: false,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Expanded(child: Text(' Active Leads')),
+          IconButton(
+              onPressed: () {
+                Get.back();
+              },
+              icon: const Icon(Icons.arrow_back_ios)),
+          const Expanded(
+              child: Text(
+            ' Dumped Leads',
+            textAlign: TextAlign.start,
+            maxLines: 2,
+          )),
           Text('( ${dp.total} )')
         ],
       ),
@@ -341,6 +355,10 @@ class _MyLeadScreenState extends State<DumpedLeadScreen> {
               ),
           ],
         ),
+
+        ///TODO:
+        ///Closed leads popup menu
+        /*
         const SizedBox(width: 10),
         PopupMenuButton<int>(
           onSelected: (val) {
@@ -386,6 +404,7 @@ class _MyLeadScreenState extends State<DumpedLeadScreen> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           padding: const EdgeInsets.all(10),
         ),
+        */
       ],
       bottom: dp.isFlrApplied
           ? PreferredSize(
@@ -730,6 +749,69 @@ class _DumpLeadsCardState extends State<DumpLeadsCard> {
     }
   }
 
+  Future<void> convertToLead(int id, BuildContext context,DumpLeadsProvider dp) async {
+    //_isLoading = true;
+    late SharedPreferences pref;
+    var authToken;
+    pref = await SharedPreferences.getInstance();
+    authToken = pref.getString('token');
+    var url =
+        ApiManager.BASE_URL + ApiManager.dumpedLeadMovedToActiveLead + '/$id';
+    final headers = {
+      'Authorization-token': '3MPHJP0BC63435345341',
+      'Authorization': 'Bearer $authToken',
+      //'Accept': 'application/json',
+    };
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+      );
+      // print(response.statusCode);
+      // print(response.body);
+      // print('started2');
+      var responseData = json.decode(response.body);
+      debugPrint(responseData.toString());
+      if (response.statusCode == 200) {
+        // print('started3');
+        // _isLoading = false;
+        var success = responseData['success'];
+        var message = responseData['message'];
+
+        if (success == true) {
+          Get.back();
+          await dp.getDumpedLeads();
+          // _isLoading = false;
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(
+          //     content: Text(message),
+          //   ),
+          // );
+
+          AwesomeDialog(
+            dismissOnBackKeyPress: true,
+            dismissOnTouchOutside: false,
+            context: Get.context!,
+            dialogType: DialogType.success,
+            animType: AnimType.scale,
+            title: '\n$message\n',
+            // body: Image.asset('assets/images/delete.png'),
+            autoHide: const Duration(seconds: 2),
+          ).show();
+        }
+        // notifyListeners();
+      } else {
+        // _isLoading = false;
+        throw const HttpException('Failed To Conversion');
+      }
+      // notifyListeners();
+    } catch (error) {
+      debugPrint(error.toString());
+      // _isLoading = false;
+      rethrow;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -826,6 +908,7 @@ class _DumpLeadsCardState extends State<DumpLeadsCard> {
                               MaterialPageRoute(
                                 builder: (context) => TestCallScreen(
                                   leadId: lead.leadId.toString(),
+                                  leadType: 'dumped',
                                 ),
                               ),
                             );
@@ -984,34 +1067,82 @@ class _DumpLeadsCardState extends State<DumpLeadsCard> {
                                       ),
                                     ),
                                     InkWell(
-                                      onTap: () {
+                                      onTap: () async {
+                                        AwesomeDialog(
+                                          showCloseIcon: true,
+                                          dismissOnBackKeyPress: true,
+                                          dismissOnTouchOutside: false,
+                                          context: Get.context!,
+                                          dialogType: DialogType.question,
+                                          animType: AnimType.rightSlide,
+                                          title:
+                                              '\n\nAre you sure to convert as lead?\n',
+                                          btnCancel:
+                                              FloatingActionButton.extended(
+                                                  onPressed: () {
+                                                    Get.back();
+                                                    // SuccessDialog(
+                                                    //     title:
+                                                    //         'Leave Rejected.');
+                                                  },
+                                                  label: const Text('No'),
+                                                  icon: const FaIcon(
+                                                      FontAwesomeIcons.cancel),
+                                                  backgroundColor: Colors.red),
+                                          btnOk: FloatingActionButton.extended(
+                                              onPressed: () async {
+                                                // Get.back();
+                                                await convertToLead(
+                                                    lead.id, context,widget.dp);
+                                              },
+                                              label: const Text('Yes'),
+                                              icon: const Icon(Icons.thumb_up),
+                                              backgroundColor: Colors.green),
+                                        ).show();
+                                        // await showDialog(
+                                        //     context:
+                                        //     context,
+                                        //     barrierDismissible:
+                                        //     false,
+                                        //     builder:
+                                        //         (context) =>
+                                        //         AlertDialog(
+                                        //           shape:
+                                        //           RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                        //           title:
+                                        //           const Text('Are you sure to convert as lead?'),
+                                        //           actions: [
+                                        //             TextButton(
+                                        //                 onPressed: () {
+                                        //                   Navigator.pop(context);
+                                        //                 },
+                                        //                 child: const Text(
+                                        //                   'No',
+                                        //                   style: TextStyle(color: Colors.red, fontSize: 20),
+                                        //                 )),
+                                        //             TextButton(
+                                        //                 onPressed: () async {
+                                        //                   await ccp.convertToLead(e.id!, context).then((value) => Navigator.pop(context));
+                                        //                 },
+                                        //                 child: const Text(
+                                        //                   'Yes',
+                                        //                   style: TextStyle(color: Colors.green, fontSize: 20),
+                                        //                 ))
+                                        //           ],
+                                        //         ));
 
-                                        // _modalBottomSheetMenu1(
-                                            // context,
-                                            // e.id!
-                                            //     .toInt(),
-                                            // // 3,
-                                            // ccp.reasonStatusList);
+                                        // _modalBottomSheetMenu1(context);
                                       },
-                                      child: Image
-                                          .asset(
-                                        ImageConst
-                                            .convert_to_lead,
-                                        height: 25,
-                                        color: isSelected
-                                            ? Colors
-                                            .white
-                                            : Colors
-                                            .green,
+                                      child: const FaIcon(
+                                        FontAwesomeIcons.shareFromSquare,
+                                        size: 25,
                                         //width: 30,
+                                        color: Colors.green,
                                       ),
                                     ),
-                                    const SizedBox(
-                                      width: 30
-                                    ),
+                                    const SizedBox(width: 30),
                                   ],
                                 ),
-
                                 Padding(
                                   padding: const EdgeInsets.only(
                                       left: 20.0, right: 20.0),
@@ -1043,9 +1174,7 @@ class _DumpLeadsCardState extends State<DumpLeadsCard> {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(
-                                  height: 10
-                                ),
+                                const SizedBox(height: 10),
                                 const SizedBox(
                                   height: 10,
                                 ),
