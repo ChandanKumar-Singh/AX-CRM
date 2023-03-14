@@ -76,13 +76,11 @@ class _LeadNotesScreenState extends State<LeadNotesScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(
-                        height: 15.h,
-                      ),
+                      SizedBox(height: 15.h),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 15.0),
                         child: Text(
-                          widget.notes[index].newComments.toString(),
+                          widget.notes[index].newComments ?? '',
                           style: GoogleFonts.workSans(fontSize: 18),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -94,7 +92,8 @@ class _LeadNotesScreenState extends State<LeadNotesScreen> {
               );
             },
           ),
-          if (widget.leadType=='lead'&&s.height < 700)
+          // if (widget.leadType=='lead'&&s.height < 700)
+          if (s.height < 700)
             Positioned(
               bottom: 110,
               right: 10,
@@ -164,70 +163,72 @@ class _LeadNotesScreenState extends State<LeadNotesScreen> {
             )
         ],
       ),
-      floatingActionButton: widget.leadType!='lead'?null:s.height > 700
-          ? InkWell(
-              onTap: () {
-                showCupertinoModalPopup(
-                    context: context,
-                    builder: (context) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          height: MediaQuery.of(context).size.height * 0.7,
-                          decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              topRight: Radius.circular(20),
-                              bottomLeft: Radius.circular(20),
-                              bottomRight: Radius.circular(20),
+      floatingActionButton:
+          // widget.leadType!='lead'?null:
+          s.height > 700
+              ? InkWell(
+                  onTap: () {
+                    showCupertinoModalPopup(
+                        context: context,
+                        builder: (context) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              height: MediaQuery.of(context).size.height * 0.7,
+                              decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(20),
+                                  topRight: Radius.circular(20),
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                ),
+                                color: Colors.white,
+                              ),
+                              child: widget.addCommentWidget,
                             ),
+                          );
+                        });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.grey,
+                          offset: Offset(0.0, 1.0), //(x,y)
+                          blurRadius: 9.0,
+                        ),
+                      ],
+                    ),
+                    height: 50,
+                    width: 160,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(
+                            Icons.add,
                             color: Colors.white,
                           ),
-                          child: widget.addCommentWidget,
-                        ),
-                      );
-                    });
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.grey,
-                      offset: Offset(0.0, 1.0), //(x,y)
-                      blurRadius: 9.0,
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            'Add Notes',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
-                height: 50,
-                width: 160,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(
-                        Icons.add,
-                        color: Colors.white,
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        'Add Notes',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
                   ),
-                ),
-              ),
-            )
-          : Container(),
+                )
+              : Container(),
     );
   }
 }

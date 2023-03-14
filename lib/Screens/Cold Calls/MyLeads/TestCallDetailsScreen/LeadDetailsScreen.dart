@@ -8,16 +8,16 @@ import '../../../../Models/LeadInfoModel.dart';
 class LeadDetailsScreen extends StatefulWidget {
   String leadId,
       leadName,
-      Name,
+      name,
       leadDate,
       leadContact,
       leadAltContact,
       leadEmail,
       leadComment,
       leadPropertyPreference,
-      avg_amount,
+      avgAmount,
       assignUser,
-      assigndUsers;
+      assignedUsers;
   int agentId;
   List<Agent> agents;
 
@@ -26,16 +26,16 @@ class LeadDetailsScreen extends StatefulWidget {
     required this.leadId,
     required this.agentId,
     required this.leadName,
-    required this.Name,
+    required this.name,
     required this.leadDate,
     required this.leadContact,
     required this.leadAltContact,
     required this.leadEmail,
     required this.leadComment,
     required this.leadPropertyPreference,
-    required this.avg_amount,
+    required this.avgAmount,
     required this.assignUser,
-    required this.assigndUsers,
+    required this.assignedUsers,
     required this.agents,
   }) : super(key: key);
 
@@ -60,6 +60,7 @@ class _LeadDetailsScreenState extends State<LeadDetailsScreen>
       avg_amount = '';
   bool tapDwonLeadContact = false;
   bool tapDwonAltContact = false;
+  bool tapDwonLeadEmail = false;
   // late AnimationController copiAnimationController;
   // late Animation curveAnimation;
 
@@ -348,11 +349,54 @@ class _LeadDetailsScreenState extends State<LeadDetailsScreen>
                 fontWeight: FontWeight.w600,
               ),
             ),
-            subtitle: myId != agentId
-                ? Text(widget.leadEmail != ''
-                    ? maskString(widget.leadEmail, true)
-                    : 'N/A')
-                : Text(widget.leadEmail != '' ? widget.leadEmail : 'N/A'),
+            subtitle: Row(
+              children: [
+                myId != agentId
+                    ? Text(widget.leadEmail != ''
+                        ? maskString(widget.leadEmail, true)
+                        : 'N/A')
+                    : Text(widget.leadEmail != '' ? widget.leadEmail : 'N/A'),
+                SizedBox(
+                  width: 20,
+                ),
+                if (myId == agentId)
+                  AnimatedSize(
+                    curve: Curves.bounceInOut,
+                    duration: const Duration(milliseconds: 500),
+                    child: widget.leadEmail != ''
+                        ? GestureDetector(
+                      onTap: () async {
+                        setState(() {
+                          tapDwonLeadEmail = true;
+                        });
+                        await Clipboard.setData(
+                            ClipboardData(text: widget.leadEmail))
+                            .then((value) {
+                          Future.delayed(
+                              const Duration(milliseconds: 500), () {
+                            setState(() {
+                              tapDwonLeadEmail = false;
+                            });
+                          });
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                duration: Duration(milliseconds: 300),
+                                width: 300,
+                                content: Text(
+                                    'Email copied successfully!'),
+                                behavior: SnackBarBehavior.floating));
+                      },
+                      child: Icon(
+                        Icons.copy,
+                        size: tapDwonLeadEmail ? 40 : 18,
+                      ),
+                      // tooltip: 'Copy Phone Number',
+                    )
+                        : Container(),
+                  )
+              ],
+            ),
           ),
           const Divider(),
           ListTile(

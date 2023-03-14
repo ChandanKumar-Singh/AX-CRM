@@ -314,7 +314,7 @@ class _TestCallScreenState extends State<TestCallScreen> {
                     color: themeColor,
                     thickness: 1,
                   ),
-                  if(widget.leadType=='lead')
+                  // if(widget.leadType=='lead')
                   Column(
                     children: [
                       Padding(
@@ -394,7 +394,9 @@ class _TestCallScreenState extends State<TestCallScreen> {
                             InkWell(
                               onTap: () {
                                 if (agentId == myId) {
-                                  _textMe();
+                                  // _textMe();
+                                  mailMe(leadEmail);
+
                                 } else {
                                   Fluttertoast.showToast(
                                       msg: 'You don\'t have permission. ');
@@ -403,7 +405,7 @@ class _TestCallScreenState extends State<TestCallScreen> {
                               child: Column(
                                 children: [
                                   const Icon(
-                                    Icons.message,
+                                    Icons.email_outlined,
                                     size: 40,
                                     color: Colors.green,
                                   ),
@@ -585,14 +587,14 @@ class _TestCallScreenState extends State<TestCallScreen> {
                                       : leadAltContact,
                                   leadContact: leadContact,
                                   leadDate: leadDate,
-                                  Name: sourceName,
+                                  name: sourceName,
                                   leadEmail: leadEmail,
                                   leadComment: leadComment,
                                   leadPropertyPreference:
                                       leadPropertyPreference,
-                                  avg_amount: avg_amount,
+                                  avgAmount: avg_amount,
                                   assignUser: assigndUser,
-                                  assigndUsers: assigndUser1,
+                                  assignedUsers: assigndUser1,
                                   agents: _leadInfoList[0].lead!.agents!,
                                 ),
                                 LeadNotesScreen(
@@ -705,4 +707,41 @@ class _TestCallScreenState extends State<TestCallScreen> {
       }
     }
   }
+  mailMe(var email) async {
+    final Uri params = Uri(
+      scheme: 'mailto',
+      path: '$email',
+      // query: 'subject=App Feedback&body=App Version 3.23', //add subject and body here
+    );
+
+    var url = params.toString();
+    if (await canLaunch(url)) {
+      print('can launch.');
+      await launch(url);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Could not email app"),
+        behavior: SnackBarBehavior.floating,
+      ));
+      throw 'Could not launch $url';
+    }
+    // // Android
+    // var uri = "mailto:${email ?? ''}?subject=News&body=New%20plugin";
+    // if (await canLaunch(uri)) {
+    //   await launch(uri);
+    // } else {
+    //   // iOS
+    //   // var uri = 'sms:$number?body=hello%20there';
+    //   if (await canLaunch(uri)) {
+    //     await launch(uri);
+    //   } else {
+    //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+    //       content: Text("Could not email app"),
+    //       behavior: SnackBarBehavior.floating,
+    //     ));
+    //     throw 'Could not launch $uri';
+    //   }
+    // }
+  }
+
 }

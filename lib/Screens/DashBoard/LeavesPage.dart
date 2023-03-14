@@ -1057,12 +1057,14 @@ class _ApplyLeaveShowDialogState extends State<ApplyLeaveShowDialog> {
       'Accept': 'application/json',
     };
     final body = {
-      "agent_id": selectedAgent,
+      // "agent_id": selectedAgent,
+      "agent_id": id,
       "from_date": DateFormat('yyyy-MM-dd').format(fromDate),
       "to_date": DateFormat('yyyy-MM-dd').format(toDate),
       "leave_type_id": leaveTypeId.toString(),
       "description": descriptionController.text
     };
+    print('this is body for update keave $body');
     try {
       final response =
           await http.post(Uri.parse(url), headers: headers, body: body);
@@ -1093,6 +1095,7 @@ class _ApplyLeaveShowDialogState extends State<ApplyLeaveShowDialog> {
   @override
   void initState() {
     super.initState();
+    print('this is widget.data ${widget.data}');
     if (widget.data != null) {
       id = widget.data![0].toString();
       fromDate = DateTime.parse(widget.data![1]);

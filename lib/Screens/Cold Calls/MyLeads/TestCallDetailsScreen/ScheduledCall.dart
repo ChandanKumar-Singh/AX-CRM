@@ -140,7 +140,7 @@ class _ScheduledCallState extends State<ScheduledCall> {
                                   ],
                                 ),
                               ),
-                              if(widget.leadType=='lead')
+                              // if(widget.leadType=='lead')
                               Row(
                                 children: [
                                   InkWell(
@@ -222,7 +222,7 @@ class _ScheduledCallState extends State<ScheduledCall> {
                                     ),
                                   ),
                                   const SizedBox(
-                                    width: 10,
+                                    width: 10
                                   ),
                                   InkWell(
                                     onTap: () {
@@ -274,7 +274,8 @@ class _ScheduledCallState extends State<ScheduledCall> {
                       ),
                     );
                   }),
-              if (widget.leadType=='lead'&&s.height < 700)
+              // if (widget.leadType=='lead'&&s.height < 700)
+              if (s.height < 700)
                 Positioned(
                   bottom: 110,
                   right: 10,
@@ -350,7 +351,9 @@ class _ScheduledCallState extends State<ScheduledCall> {
           );
         },
       ),
-      floatingActionButton: widget.leadType!='lead'?null:s.height > 700
+      floatingActionButton:
+      // widget.leadType!='lead'?null:
+      s.height > 700
           ? InkWell(
               onTap: () {
                 showCupertinoModalPopup(

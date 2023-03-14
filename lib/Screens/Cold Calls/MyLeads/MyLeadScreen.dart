@@ -164,10 +164,12 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xF2C08004),
-                                      disabledBackgroundColor:  const Color(0xABA4A3A3),
+                                      disabledBackgroundColor:
+                                          const Color(0xABA4A3A3),
                                       shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(50)),),
-
+                                          borderRadius:
+                                              BorderRadius.circular(50)),
+                                    ),
                                     onPressed: lp.selectedLeads.isNotEmpty
                                         ? () async {
                                             await showDialog(
@@ -197,10 +199,12 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xF2318005),
-                                      disabledBackgroundColor:  const Color(0xABA4A3A3),
+                                      disabledBackgroundColor:
+                                          const Color(0xABA4A3A3),
                                       shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(50)),),
-
+                                          borderRadius:
+                                              BorderRadius.circular(50)),
+                                    ),
                                     onPressed: lp.selectedLeads.isNotEmpty
                                         ? () async {
                                             await showDialog(
@@ -230,10 +234,12 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xF2E52121),
-                                      disabledBackgroundColor:  const Color(0xABA4A3A3),
+                                      disabledBackgroundColor:
+                                          const Color(0xABA4A3A3),
                                       shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(50)),),
-
+                                          borderRadius:
+                                              BorderRadius.circular(50)),
+                                    ),
                                     onPressed: lp.selectedLeads.isNotEmpty
                                         ? () {
                                             AwesomeDialog(
@@ -311,7 +317,11 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Expanded(child: Text(' Active Leads',textAlign: TextAlign.start,)),
+          const Expanded(
+              child: Text(
+            ' Active Leads',
+            textAlign: TextAlign.start,
+          )),
           Text('( ${lp.total} )')
         ],
       ),
@@ -336,6 +346,7 @@ class _MyLeadScreenState extends State<MyLeadScreen> {
               ),
           ],
         ),
+
         ///TODO:
         ///Closed leads popup menu
         /*
@@ -729,6 +740,43 @@ class _LeadsCardState extends State<LeadsCard> {
     }
   }
 
+  _MailMe(var email) async {
+    final Uri params = Uri(
+      scheme: 'mailto',
+      path: '$email',
+      // query: 'subject=App Feedback&body=App Version 3.23', //add subject and body here
+    );
+
+    var url = params.toString();
+    if (await canLaunch(url)) {
+      print('can launch.');
+      await launch(url);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Could not email app"),
+        behavior: SnackBarBehavior.floating,
+      ));
+      throw 'Could not launch $url';
+    }
+    // // Android
+    // var uri = "mailto:${email ?? ''}?subject=News&body=New%20plugin";
+    // if (await canLaunch(uri)) {
+    //   await launch(uri);
+    // } else {
+    //   // iOS
+    //   // var uri = 'sms:$number?body=hello%20there';
+    //   if (await canLaunch(uri)) {
+    //     await launch(uri);
+    //   } else {
+    //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+    //       content: Text("Could not email app"),
+    //       behavior: SnackBarBehavior.floating,
+    //     ));
+    //     throw 'Could not launch $uri';
+    //   }
+    // }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -824,7 +872,8 @@ class _LeadsCardState extends State<LeadsCard> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => TestCallScreen(
-                                  leadId: lead.leadId.toString(),leadType: 'lead',
+                                  leadId: lead.leadId.toString(),
+                                  leadType: 'lead',
                                 ),
                               ),
                             );
@@ -996,7 +1045,8 @@ class _LeadsCardState extends State<LeadsCard> {
                                                       listen: false)
                                                   .makeDialCall(
                                                       lead.phone.toString(),
-                                                      'Lead',name: lead.name);
+                                                      'Lead',
+                                                      name: lead.name);
                                             } catch (e) {
                                               print('Lead screen error $e');
                                             }
@@ -1078,23 +1128,20 @@ class _LeadsCardState extends State<LeadsCard> {
                                         ),
                                       ),
                                       InkWell(
-                                        onTap: () {
-                                          if (agentId == myId) {
-                                            _textMe(
-                                              lead.phone.toString(),
-                                            );
-                                          } else {
-                                            Fluttertoast.showToast(
-                                                msg:
-                                                    'You don\'t have permission. ');
-                                          }
-                                        },
-                                        child: Image.asset(
-                                          'assets/images/messageIcon.png',
-                                          height: 25,
-                                          width: 25,
-                                        ),
-                                      ),
+                                          onTap: () {
+                                            if (agentId == myId) {
+                                              _MailMe(
+                                                lead.email,
+                                              );
+                                            } else {
+                                              Fluttertoast.showToast(
+                                                  msg:
+                                                      'You don\'t have permission. ');
+                                            }
+                                          },
+                                          child: const Icon(
+                                              Icons.email_outlined,
+                                              color: Colors.green)),
                                       GestureDetector(
                                         onTap: () async {
                                           if (agentId == myId) {
@@ -1121,6 +1168,7 @@ class _LeadsCardState extends State<LeadsCard> {
                                           color: Colors.green,
                                         ),
                                       ),
+
                                       ///TODO: remove button on card
                                       /*
                                       GestureDetector(
@@ -1344,7 +1392,7 @@ class _LeadAssignmentToLeaderDialogState
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: themeColor,
-                   ),
+                  ),
                   onPressed: () async {
                     // lp.dispose();
                     if (_leaderKey.currentState!.validate() &&
@@ -1358,7 +1406,6 @@ class _LeadAssignmentToLeaderDialogState
                     'Submit',
                     style: TextStyle(color: Colors.white),
                   ),
-
                 ),
               ],
               mainAxisAlignment: MainAxisAlignment.end,
@@ -1607,7 +1654,7 @@ class _LeadAssignmentToAgentDialogState
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: themeColor,
-                    ),
+                  ),
                   onPressed: () async {
                     if (_agentKey.currentState!.validate() &&
                         _sourceKey.currentState!.validate() &&
@@ -1620,7 +1667,6 @@ class _LeadAssignmentToAgentDialogState
                     'Submit',
                     style: TextStyle(color: Colors.white),
                   ),
-
                 ),
               ],
               mainAxisAlignment: MainAxisAlignment.end,
@@ -2753,11 +2799,11 @@ class _LeadsFiltersState extends State<LeadsFilters> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:themeColor,
-                        disabledBackgroundColor:  const Color(0xABA4A3A3),
+                        backgroundColor: themeColor,
+                        disabledBackgroundColor: const Color(0xABA4A3A3),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5)),),
-
+                            borderRadius: BorderRadius.circular(5)),
+                      ),
                       onPressed: () async {
                         Get.back();
                         await lp.applyFilter(lp);

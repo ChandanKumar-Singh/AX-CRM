@@ -749,7 +749,45 @@ class _DumpLeadsCardState extends State<DumpLeadsCard> {
     }
   }
 
-  Future<void> convertToLead(int id, BuildContext context,DumpLeadsProvider dp) async {
+  _MailMe(var email) async {
+    final Uri params = Uri(
+      scheme: 'mailto',
+      path: '$email',
+      // query: 'subject=App Feedback&body=App Version 3.23', //add subject and body here
+    );
+
+    var url = params.toString();
+    if (await canLaunch(url)) {
+      print('can launch.');
+      await launch(url);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Could not email app"),
+        behavior: SnackBarBehavior.floating,
+      ));
+      throw 'Could not launch $url';
+    }
+    // // Android
+    // var uri = "mailto:${email ?? ''}?subject=News&body=New%20plugin";
+    // if (await canLaunch(uri)) {
+    //   await launch(uri);
+    // } else {
+    //   // iOS
+    //   // var uri = 'sms:$number?body=hello%20there';
+    //   if (await canLaunch(uri)) {
+    //     await launch(uri);
+    //   } else {
+    //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+    //       content: Text("Could not email app"),
+    //       behavior: SnackBarBehavior.floating,
+    //     ));
+    //     throw 'Could not launch $uri';
+    //   }
+    // }
+  }
+
+  Future<void> convertToLead(
+      int id, BuildContext context, DumpLeadsProvider dp) async {
     //_isLoading = true;
     late SharedPreferences pref;
     var authToken;
@@ -1066,80 +1104,39 @@ class _DumpLeadsCardState extends State<DumpLeadsCard> {
                                         ),
                                       ),
                                     ),
-                                    InkWell(
-                                      onTap: () async {
-                                        AwesomeDialog(
-                                          showCloseIcon: true,
-                                          dismissOnBackKeyPress: true,
-                                          dismissOnTouchOutside: false,
-                                          context: Get.context!,
-                                          dialogType: DialogType.question,
-                                          animType: AnimType.rightSlide,
-                                          title:
-                                              '\n\nAre you sure to convert as lead?\n',
-                                          btnCancel:
-                                              FloatingActionButton.extended(
-                                                  onPressed: () {
-                                                    Get.back();
-                                                    // SuccessDialog(
-                                                    //     title:
-                                                    //         'Leave Rejected.');
-                                                  },
-                                                  label: const Text('No'),
-                                                  icon: const FaIcon(
-                                                      FontAwesomeIcons.cancel),
-                                                  backgroundColor: Colors.red),
-                                          btnOk: FloatingActionButton.extended(
-                                              onPressed: () async {
-                                                // Get.back();
-                                                await convertToLead(
-                                                    lead.id, context,widget.dp);
-                                              },
-                                              label: const Text('Yes'),
-                                              icon: const Icon(Icons.thumb_up),
-                                              backgroundColor: Colors.green),
-                                        ).show();
-                                        // await showDialog(
-                                        //     context:
-                                        //     context,
-                                        //     barrierDismissible:
-                                        //     false,
-                                        //     builder:
-                                        //         (context) =>
-                                        //         AlertDialog(
-                                        //           shape:
-                                        //           RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                        //           title:
-                                        //           const Text('Are you sure to convert as lead?'),
-                                        //           actions: [
-                                        //             TextButton(
-                                        //                 onPressed: () {
-                                        //                   Navigator.pop(context);
-                                        //                 },
-                                        //                 child: const Text(
-                                        //                   'No',
-                                        //                   style: TextStyle(color: Colors.red, fontSize: 20),
-                                        //                 )),
-                                        //             TextButton(
-                                        //                 onPressed: () async {
-                                        //                   await ccp.convertToLead(e.id!, context).then((value) => Navigator.pop(context));
-                                        //                 },
-                                        //                 child: const Text(
-                                        //                   'Yes',
-                                        //                   style: TextStyle(color: Colors.green, fontSize: 20),
-                                        //                 ))
-                                        //           ],
-                                        //         ));
-
-                                        // _modalBottomSheetMenu1(context);
-                                      },
-                                      child: const FaIcon(
-                                        FontAwesomeIcons.shareFromSquare,
-                                        size: 25,
-                                        //width: 30,
-                                        color: Colors.green,
+                                    if (agentId == myId)
+                                      InkWell(
+                                        onTap: () async {
+                                          print('call');
+                                          try {
+                                            // _callNumber(
+                                            //     'tel:${lead.phone.toString()}');
+                                            try {
+                                              await Provider.of<DialProvider>(
+                                                      context,
+                                                      listen: false)
+                                                  .makeDialCall(
+                                                      lead.phone.toString(),
+                                                      'Lead',
+                                                      name: lead.name);
+                                            } catch (e) {
+                                              print('Lead screen error $e');
+                                            }
+                                          } catch (e) {
+                                            print(e);
+                                          }
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 18.0,
+                                          ),
+                                          child: Image.asset(
+                                            ImageConst.call_icon,
+                                            height: 25,
+                                            color: Colors.green,
+                                          ),
+                                        ),
                                       ),
-                                    ),
                                     const SizedBox(width: 30),
                                   ],
                                 ),
@@ -1175,6 +1172,213 @@ class _DumpLeadsCardState extends State<DumpLeadsCard> {
                                   ),
                                 ),
                                 const SizedBox(height: 10),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 30.0, right: 30.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      InkWell(
+                                        onTap: () {
+                                          if (agentId == myId) {
+                                            openWhatsapp(
+                                              lead.phone.toString(),
+                                            );
+                                          } else {
+                                            Fluttertoast.showToast(
+                                                msg:
+                                                    'You don\'t have permission. ');
+                                          }
+                                        },
+                                        child: Image.asset(
+                                          'assets/images/whatsapp.png',
+                                          height: 25,
+                                          width: 25,
+                                        ),
+                                      ),
+                                      InkWell(
+                                          onTap: () {
+                                            if (agentId == myId) {
+                                              _MailMe(
+                                                lead.email,
+                                              );
+                                            } else {
+                                              Fluttertoast.showToast(
+                                                  msg:
+                                                      'You don\'t have permission. ');
+                                            }
+                                          },
+                                          child: const Icon(
+                                              Icons.email_outlined,
+                                              color: Colors.green)),
+                                      GestureDetector(
+                                        onTap: () async {
+                                          if (agentId == myId) {
+                                            await Clipboard.setData(
+                                                ClipboardData(
+                                                    text: lead.phone));
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(const SnackBar(
+                                                    duration:
+                                                        Duration(seconds: 1),
+                                                    behavior: SnackBarBehavior
+                                                        .floating,
+                                                    content: Text(
+                                                        'Phone number copied successfully!')));
+                                          } else {
+                                            Fluttertoast.showToast(
+                                                msg:
+                                                    'You don\'t have permission. ');
+                                          }
+                                        },
+                                        child: const Icon(
+                                          Icons.copy,
+                                          size: 25,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () async {
+                                          AwesomeDialog(
+                                            showCloseIcon: true,
+                                            dismissOnBackKeyPress: true,
+                                            dismissOnTouchOutside: false,
+                                            context: Get.context!,
+                                            dialogType: DialogType.question,
+                                            animType: AnimType.rightSlide,
+                                            title:
+                                                '\n\nAre you sure to convert as lead?\n',
+                                            btnCancel:
+                                                FloatingActionButton.extended(
+                                                    onPressed: () {
+                                                      Get.back();
+                                                      // SuccessDialog(
+                                                      //     title:
+                                                      //         'Leave Rejected.');
+                                                    },
+                                                    label: const Text('No'),
+                                                    icon: const FaIcon(
+                                                        FontAwesomeIcons
+                                                            .cancel),
+                                                    backgroundColor:
+                                                        Colors.red),
+                                            btnOk:
+                                                FloatingActionButton.extended(
+                                                    onPressed: () async {
+                                                      // Get.back();
+                                                      await convertToLead(
+                                                          lead.id,
+                                                          context,
+                                                          widget.dp);
+                                                    },
+                                                    label: const Text('Yes'),
+                                                    icon: const Icon(
+                                                        Icons.thumb_up),
+                                                    backgroundColor:
+                                                        Colors.green),
+                                          ).show();
+                                          // await showDialog(
+                                          //     context:
+                                          //     context,
+                                          //     barrierDismissible:
+                                          //     false,
+                                          //     builder:
+                                          //         (context) =>
+                                          //         AlertDialog(
+                                          //           shape:
+                                          //           RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                          //           title:
+                                          //           const Text('Are you sure to convert as lead?'),
+                                          //           actions: [
+                                          //             TextButton(
+                                          //                 onPressed: () {
+                                          //                   Navigator.pop(context);
+                                          //                 },
+                                          //                 child: const Text(
+                                          //                   'No',
+                                          //                   style: TextStyle(color: Colors.red, fontSize: 20),
+                                          //                 )),
+                                          //             TextButton(
+                                          //                 onPressed: () async {
+                                          //                   await ccp.convertToLead(e.id!, context).then((value) => Navigator.pop(context));
+                                          //                 },
+                                          //                 child: const Text(
+                                          //                   'Yes',
+                                          //                   style: TextStyle(color: Colors.green, fontSize: 20),
+                                          //                 ))
+                                          //           ],
+                                          //         ));
+
+                                          // _modalBottomSheetMenu1(context);
+                                        },
+                                        child: const FaIcon(
+                                          FontAwesomeIcons.shareFromSquare,
+                                          size: 25,
+                                          //width: 30,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+
+                                      ///TODO: remove button on card
+                                      /*
+                                      GestureDetector(
+
+                                        onTap: () async {
+                                          AwesomeDialog(
+                                              context: context,
+                                              dialogType: DialogType.question,
+                                              title:
+                                                  'Are you sure to remove from list?',
+                                              dismissOnBackKeyPress: true,
+                                              dismissOnTouchOutside: false,
+                                              btnOkText: 'Yes sure!',
+                                              btnCancelText: 'No',
+                                              btnCancelOnPress: () {},
+                                              btnOkOnPress: () async {
+                                                await widget.lp
+                                                    .removeLeadFromList(lead
+                                                        .leadId!
+                                                        .toString());
+                                              }).show();
+                                          // if (agentId == myId) {
+                                          //   await Clipboard.setData(
+                                          //       ClipboardData(
+                                          //           text: lead.phone));
+                                          //   ScaffoldMessenger.of(context)
+                                          //       .showSnackBar(const SnackBar(
+                                          //           duration:
+                                          //               Duration(seconds: 1),
+                                          //           behavior: SnackBarBehavior
+                                          //               .floating,
+                                          //           content: Text(
+                                          //               'Phone number copied successfully!')));
+                                          // } else {
+                                          //   Fluttertoast.showToast(
+                                          //       msg:
+                                          //           'You don\'t have permission. ');
+                                          // }
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              // shape: BoxShape.circle,
+                                              // border: Border.all(color: Colors.red,width: 2,),
+
+                                              ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(2),
+                                            child: const Icon(
+                                              Icons.remove_circle_rounded,
+                                              size: 25,
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      */
+                                    ],
+                                  ),
+                                ),
                                 const SizedBox(
                                   height: 10,
                                 ),
